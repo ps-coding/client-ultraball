@@ -14,11 +14,16 @@
 
 	let currentPlayerId: number;
 
-	let reloadSelection: (typeof game.players)[number]['reloads'];
+	let reloadSelection: (typeof game.players)[number]['reloads'] = {
+		knife: 0,
+		ball: 0,
+		bazooka: 0,
+		spiral: 0
+	};
 	let against: number;
 
 	onMount(() => {
-		ws = new WebSocket('ws://localhost:8080');
+		ws = new WebSocket('wss://server-ultraball.onrender.com');
 
 		ws.onopen = () => {
 			status = 'connected';
@@ -28,8 +33,6 @@
 			const { type, payload } = JSONRetrocycle(JSON.parse(data.data));
 
 			game = payload.game;
-
-			console.log(type);
 
 			switch (type) {
 				case 'game-created':
@@ -51,7 +54,7 @@
 				case 'player-moved':
 					status = 'move';
 					break;
-				case 'update':
+				case 'game-updated':
 					status = 'update';
 					break;
 				case 'game-ended':
@@ -98,12 +101,10 @@
 		if (!player) return [];
 		const reloads = Object.keys(player.reloads).map((key) => {
 			return {
-				type: key as keyof typeof player.reloads,
+				edition: key as keyof typeof player.reloads,
 				amount: player.reloads[key as keyof typeof player.reloads]
 			};
 		});
-
-		console.log(reloads);
 
 		return reloads;
 	}
@@ -112,12 +113,21 @@
 		if (!reloadSelection) return undefined;
 		const reloads = Object.keys(reloadSelection).map((key) => {
 			return {
-				type: key as keyof typeof reloadSelection,
+				edition: key as keyof typeof reloadSelection,
 				amount: reloadSelection[key as keyof typeof reloadSelection]
 			};
 		});
 
 		return reloads;
+	}
+
+	function hasEnoughReloads(player: Player | undefined, reload: any) {
+		if (!player) return false;
+		if (!reload) return true;
+		if (player.reloads[reload.edition as keyof typeof player.reloads] < reload.amount) {
+			return false;
+		}
+		return true;
 	}
 </script>
 
@@ -135,6 +145,7 @@
 					id="gameCode"
 					min="1"
 					type="number"
+					inputmode="numeric"
 					bind:value={gameId}
 				/>
 				<button
@@ -145,7 +156,13 @@
 				>
 			</div>
 			<div>
-				<label for="cap">Cap:</label><input id="cap" type="number" min="2" bind:value={cap} />
+				<label for="cap">Cap:</label><input
+					id="cap"
+					type="number"
+					inputmode="numeric"
+					min="2"
+					bind:value={cap}
+				/>
 				<button
 					on:click={() =>
 						ws.send(JSON.stringify({ type: 'create-game', payload: { name, cap: parseInt(cap) } }))}
@@ -161,7 +178,7 @@
 	<ul>
 		{#each game.players as player}
 			<li>
-				{player.name} |
+				{player.id}: {player.name}
 				{#if isHost}
 					<button
 						on:click={() =>
@@ -181,7 +198,9 @@
 	Move:
 	<select bind:value={selectedMove}>
 		{#each moves as move}
-			<option value={move}>{move.title} ({move.method})</option>
+			{#if !(move.method == 'offense' && move.needs?.edition != 'any' && game.players && !hasEnoughReloads( game.players.find((p) => p.id == currentPlayerId), move.needs ))}
+				<option value={move}>{move.title} ({move.method})</option>
+			{/if}
 		{/each}
 	</select>
 	{#if selectedMove && selectedMove.dir === 'one'}
@@ -201,9 +220,14 @@
 		<br />
 		{#each reloadsArray(game.players.find((p) => p.id == currentPlayerId)) as reload}
 			{#if reload.amount > 0}
-				{reload.type}:
-				{console.log(reload)}
-				<input min="0" max={reload.amount} bind:value={reloadSelection[reload.type]} />
+				{reload.edition}:
+				<input
+					type="number"
+					inputmode="numeric"
+					min="0"
+					max={reload.amount}
+					bind:value={reloadSelection[reload.edition]}
+				/>
 				<br />
 			{/if}
 		{/each}
@@ -211,23 +235,68 @@
 
 	<button
 		on:click={() => {
+			const player = game.players.find((p) => p.id == currentPlayerId);
+
+			if (!player) return;
+
+			const playerReloads = JSON.parse(JSON.stringify(player.reloads));
+
+			const usingReloads = reloadSelectionToArray();
+
+			if (
+				usingReloads &&
+				selectedMove.method == 'offense' &&
+				selectedMove.needs?.edition == 'any'
+			) {
+				let counter = 0;
+				for (const use of usingReloads) {
+					if (playerReloads[use.edition] >= use.amount) {
+						playerReloads[use.edition] -= use.amount;
+						counter += use.amount;
+					} else {
+						break;
+					}
+				}
+
+				if (counter < selectedMove.needs.amount) {
+					return;
+				}
+			}
 			ws.send(
 				JSON.stringify({
 					type: 'load-move',
 					payload: {
 						playerId: currentPlayerId,
 						moveId: selectedMove.id,
-						using: reloadSelectionToArray(),
+						using:
+							selectedMove.method == 'offense' && selectedMove.needs?.edition == 'any'
+								? reloadSelectionToArray()
+								: undefined,
 						direction: against
 					}
 				})
 			);
 			status = 'moved';
+			reloadSelection = { knife: 0, ball: 0, bazooka: 0, spiral: 0 };
 		}}>Submit</button
 	>
 {:else if status === 'moved'}
 	<h2>Waiting...</h2>
-	<p>{game.movesDone} of {game.players.length} moved</p>
+	<p>{game.playersMoved.length} of {game.players.length} moved</p>
+	<ul>
+		{#each game.players as player}
+			<li>
+				{player.id}: {player.name} ({game.playersMoved.includes(player.id) ? 'moved' : 'moving'})
+				{#if isHost}
+					<button
+						on:click={() =>
+							ws.send(JSON.stringify({ type: 'kick-out', payload: { playerId: player.id } }))}
+						>Remove</button
+					>
+				{/if}
+			</li>
+		{/each}
+	</ul>
 	{#if isHost}
 		<button
 			on:click={() => {
@@ -250,36 +319,35 @@
 				<p>Reloads:</p>
 				<ul>
 					{#each playerReloadTextArray(player) as reload}
-						<p>{reload}</p>
+						<li>{reload}</li>
 					{/each}
 				</ul>
 			</div>
 		{/each}
 	</div>
-	<button
-		on:click={() => {
-			status = 'move';
-		}}>Make Next Move</button
-	>
+	{#if game.players.find((p) => p.id == currentPlayerId)?.isDead}
+		<p>You died!</p>
+	{:else}
+		<p>You survived!</p>
+		<button
+			on:click={() => {
+				status = 'move';
+			}}>Make Next Move</button
+		>
+	{/if}
 {:else if status === 'results'}
 	<h2>Results</h2>
 	{#each game.players as player}
-		<p><b>{player.id}: {player.name}</b> {player.isDead ? 'died' : 'survived!'}</p>
+		<p><b>{player.id}: {player.name}</b> {player.isDead ? 'died' : 'survived'}</p>
 	{/each}
 	<button
 		on:click={() => {
-			status = 'connected';
-			isHost = false;
-			ws = new WebSocket('ws://localhost:8080');
+			window.location.reload();
 		}}>Play Again</button
 	>
 {/if}
 
 <style>
-	* {
-		text-align: center;
-	}
-
 	.game-connect {
 		display: flex;
 		flex-direction: column;

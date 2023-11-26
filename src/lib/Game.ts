@@ -5,7 +5,7 @@ export type Game = {
 	cap: number;
 	gameStarted: boolean;
 	gameEnded: boolean;
-	movesDone: number;
+	playersMoved: number[];
 };
 
 export type Player = {
