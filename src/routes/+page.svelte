@@ -485,12 +485,11 @@
 				<p>
 					<b>{player.id}: {player.name}</b>
 				</p>
-				{player.isDead ? 'Dead' : 'Alive'}
+				<p><u>Status:</u> {player.isDead ? 'Dead' : 'Alive'}</p>
+				<p>{playerMoveText(player)}</p>
 				<br />
-				{playerMoveText(player)}
-				<br />
+				<p><u>Reloads:</u></p>
 				<ul>
-					Reloads:
 					{#each playerReloadTextArray(player) as reload}
 						<li>{reload}</li>
 					{/each}
@@ -528,12 +527,11 @@
 				<p>
 					<b>{player.id}: {player.name}</b>
 				</p>
-				{player.isDead ? 'Dead' : 'Alive'}
+				<p><u>Status:</u> {player.isDead ? 'Dead' : 'Alive'}</p>
+				<p>{playerMoveText(player)}</p>
 				<br />
-				{playerMoveText(player)}
-				<br />
+				<p><u>Reloads:</u></p>
 				<ul>
-					Reloads:
 					{#each playerReloadTextArray(player) as reload}
 						<li>{reload}</li>
 					{/each}
