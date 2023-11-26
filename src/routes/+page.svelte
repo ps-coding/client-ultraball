@@ -489,8 +489,8 @@
 				<br />
 				{playerMoveText(player)}
 				<br />
-				<span>Reloads:</span>
 				<ul>
+					Reloads:
 					{#each playerReloadTextArray(player) as reload}
 						<li>{reload}</li>
 					{/each}
@@ -532,8 +532,8 @@
 				<br />
 				{playerMoveText(player)}
 				<br />
-				<span>Reloads:</span>
 				<ul>
+					Reloads:
 					{#each playerReloadTextArray(player) as reload}
 						<li>{reload}</li>
 					{/each}
