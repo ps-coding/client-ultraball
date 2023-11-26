@@ -353,6 +353,7 @@
 	{/if}
 	{#if selectedMove && selectedMove.method == 'offense' && selectedMove.needs?.edition == 'any'}
 		<br />
+		<br />
 		Using Reloads:
 		<br />
 		{#each reloadsArray(game.players.find((p) => p.id == currentPlayerId)) as reload}
@@ -488,7 +489,7 @@
 				<br />
 				{playerMoveText(player)}
 				<br />
-				<p>Reloads:</p>
+				<span>Reloads:</span>
 				<ul>
 					{#each playerReloadTextArray(player) as reload}
 						<li>{reload}</li>
@@ -513,10 +514,9 @@
 		{/each}
 	</ul>
 	<br />
-	<br />
 	<button
 		on:click={() => {
-			window.location.reload();
+			window.location.href = 'https://ultra.shahprasham.com/';
 		}}>Play Again</button
 	>
 	<br />
@@ -532,7 +532,7 @@
 				<br />
 				{playerMoveText(player)}
 				<br />
-				<p>Reloads:</p>
+				<span>Reloads:</span>
 				<ul>
 					{#each playerReloadTextArray(player) as reload}
 						<li>{reload}</li>
