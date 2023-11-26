@@ -506,15 +506,41 @@
 	>
 	<br />
 	<br />
-	<p>All Players:</p>
-	{#each game.players as player}
-		<p><b>{player.id}: {player.name}</b> {player.isDead ? 'died' : 'survived'}</p>
-	{/each}
+	<p>All Players Summary:</p>
+	<ul>
+		{#each game.players as player}
+			<li><b>{player.id}: {player.name}</b> {player.isDead ? 'died' : 'survived'}</li>
+		{/each}
+	</ul>
+	<br />
+	<br />
 	<button
 		on:click={() => {
 			window.location.reload();
 		}}>Play Again</button
 	>
+	<br />
+	<br />
+	<p>Final Move Details:</p>
+	<div class="player-cards">
+		{#each game.players as player}
+			<div class="player-card">
+				<p>
+					<b>{player.id}: {player.name}</b>
+				</p>
+				{player.isDead ? 'Dead' : 'Alive'}
+				<br />
+				{playerMoveText(player)}
+				<br />
+				<p>Reloads:</p>
+				<ul>
+					{#each playerReloadTextArray(player) as reload}
+						<li>{reload}</li>
+					{/each}
+				</ul>
+			</div>
+		{/each}
+	</div>
 {/if}
 
 <style>
