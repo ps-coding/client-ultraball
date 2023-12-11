@@ -30,11 +30,12 @@
 			status = 'connected';
 		};
 
+		ws.onclose = () => {
+			status = 'disconnected';
+		};
+
 		ws.onmessage = (data) => {
 			const { type, payload } = JSONRetrocycle(JSON.parse(data.data));
-
-			console.log(type);
-			console.log(payload);
 
 			game = payload.game;
 
@@ -65,8 +66,15 @@
 		};
 	});
 
-	let status: 'connecting' | 'connected' | 'lobby' | 'move' | 'moved' | 'update' | 'results' =
-		'connecting';
+	let status:
+		| 'connecting'
+		| 'connected'
+		| 'lobby'
+		| 'move'
+		| 'moved'
+		| 'update'
+		| 'results'
+		| 'disconnected' = 'connecting';
 
 	let name = '';
 	let gameId = $page.url.searchParams.get('gameId');
@@ -196,10 +204,12 @@
 				status = 'connected';
 			};
 
+			ws.onclose = () => {
+				status = 'disconnected';
+			};
+
 			ws.onmessage = (data) => {
 				const { type, payload } = JSONRetrocycle(JSON.parse(data.data));
-
-				console.log(type);
 
 				game = payload.game;
 
@@ -539,6 +549,9 @@
 			</div>
 		{/each}
 	</div>
+{:else if status === 'disconnected'}
+	<p>Disconnected.</p>
+	<button on:click={() => window.location.reload()}>Retry</button>
 {/if}
 
 <style>
