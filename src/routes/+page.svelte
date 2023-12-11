@@ -31,7 +31,7 @@
 		};
 
 		ws.onclose = () => {
-			status = 'disconnected';
+			status = 'results';
 		};
 
 		ws.onmessage = (data) => {
@@ -66,15 +66,8 @@
 		};
 	});
 
-	let status:
-		| 'connecting'
-		| 'connected'
-		| 'lobby'
-		| 'move'
-		| 'moved'
-		| 'update'
-		| 'results'
-		| 'disconnected' = 'connecting';
+	let status: 'connecting' | 'connected' | 'lobby' | 'move' | 'moved' | 'update' | 'results' =
+		'connecting';
 
 	let name = '';
 	let gameId = $page.url.searchParams.get('gameId');
@@ -205,7 +198,7 @@
 			};
 
 			ws.onclose = () => {
-				status = 'disconnected';
+				status = 'results';
 			};
 
 			ws.onmessage = (data) => {
@@ -508,50 +501,57 @@
 		{/each}
 	</div>
 {:else if status === 'results'}
-	<h2>Results</h2>
-	<b
-		>You {game.players.find((p) => p.id == currentPlayerId)?.isDead
-			? 'died 💀 (lost)!'
-			: 'survived 😊 (won)!'}</b
-	>
-	<br />
-	<br />
-	<p>All Players Summary:</p>
-	<ul>
-		{#each game.players as player}
-			<li><b>{player.id}: {player.name}</b> {player.isDead ? 'died' : 'survived'}</li>
-		{/each}
-	</ul>
-	<br />
-	<button
-		on:click={() => {
-			window.location.href = 'https://ultra.shahprasham.com/';
-		}}>Play Again</button
-	>
-	<br />
-	<br />
-	<p>Final Move Details:</p>
-	<div class="player-cards">
-		{#each game.players as player}
-			<div class="player-card">
-				<p>
-					<b>{player.id}: {player.name}</b>
-				</p>
-				<p><u>Status:</u> {player.isDead ? 'Dead' : 'Alive'}</p>
-				<p>{playerMoveText(player)}</p>
-				<br />
-				<p><u>Reloads:</u></p>
-				<ul>
-					{#each playerReloadTextArray(player) as reload}
-						<li>{reload}</li>
-					{/each}
-				</ul>
-			</div>
-		{/each}
-	</div>
-{:else if status === 'disconnected'}
-	<p>Disconnected.</p>
-	<button on:click={() => window.location.reload()}>Retry</button>
+	{#if !game}
+		<h2>Disconnected</h2>
+		<p>Sorry, you were disconnected from the server.</p>
+		<button
+			on:click={() => {
+				window.location.href = 'https://ultra.shahprasham.com/';
+			}}>Play Again</button
+		>
+	{:else}
+		<h2>Results</h2>
+		<b
+			>You {game.players.find((p) => p.id == currentPlayerId)?.isDead
+				? 'died 💀 (lost)!'
+				: 'survived 😊 (won)!'}</b
+		>
+		<br />
+		<br />
+		<p>All Players Summary:</p>
+		<ul>
+			{#each game.players as player}
+				<li><b>{player.id}: {player.name}</b> {player.isDead ? 'died' : 'survived'}</li>
+			{/each}
+		</ul>
+		<br />
+		<button
+			on:click={() => {
+				window.location.href = 'https://ultra.shahprasham.com/';
+			}}>Play Again</button
+		>
+		<br />
+		<br />
+		<p>Final Move Details:</p>
+		<div class="player-cards">
+			{#each game.players as player}
+				<div class="player-card">
+					<p>
+						<b>{player.id}: {player.name}</b>
+					</p>
+					<p><u>Status:</u> {player.isDead ? 'Dead' : 'Alive'}</p>
+					<p>{playerMoveText(player)}</p>
+					<br />
+					<p><u>Reloads:</u></p>
+					<ul>
+						{#each playerReloadTextArray(player) as reload}
+							<li>{reload}</li>
+						{/each}
+					</ul>
+				</div>
+			{/each}
+		</div>
+	{/if}
 {/if}
 
 <style>
