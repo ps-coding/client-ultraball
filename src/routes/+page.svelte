@@ -187,55 +187,6 @@
 </h1>
 {#if status === 'connecting'}
 	<p>Connecting...</p>
-	<button
-		on:click={() => {
-			ws.close();
-
-			ws = new WebSocket('wss://server-ultraball.onrender.com');
-
-			ws.onopen = () => {
-				status = 'connected';
-			};
-
-			ws.onclose = () => {
-				status = 'results';
-			};
-
-			ws.onmessage = (data) => {
-				const { type, payload } = JSONRetrocycle(JSON.parse(data.data));
-
-				game = payload.game;
-
-				switch (type) {
-					case 'game-created':
-						isHost = true;
-						if (!currentPlayerId) {
-							currentPlayerId = game.host.id;
-						}
-						status = 'lobby';
-						break;
-					case 'player-added':
-						if (!currentPlayerId) {
-							currentPlayerId = payload.newPlayerId;
-						}
-						status = 'lobby';
-						break;
-					case 'game-started':
-						status = 'move';
-						break;
-					case 'player-moved':
-						status = 'move';
-						break;
-					case 'game-updated':
-						status = 'update';
-						break;
-					case 'game-ended':
-						status = 'results';
-						break;
-				}
-			};
-		}}>Retry</button
-	>
 {:else if status === 'connected'}
 	<h2>Create/Join a Game</h2>
 	<div>
@@ -347,7 +298,7 @@
 		<br />
 		Against:
 		<select bind:value={against}>
-			{#each game.players as player}
+			{#each game.players.filter((p) => !p.isDead) as player}
 				{#if player.id !== currentPlayerId}
 					<option value={player.id}>{player.id}: {player.name}</option>
 				{/if}
