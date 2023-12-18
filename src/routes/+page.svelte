@@ -427,7 +427,8 @@
 		<p>😊 You survived!</p>
 		<button
 			on:click={() => {
-				against = game.players.filter((p) => !p.isDead)[0].id;
+				against = game.players.filter((p) => !p.isDead && p.id != currentPlayerId)[0].id;
+
 				status = 'move';
 			}}>Make Next Move</button
 		>
