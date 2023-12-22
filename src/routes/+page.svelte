@@ -67,6 +67,13 @@
 				case 'game-ended':
 					status = 'results';
 					break;
+				case 'player-removed':
+					if (payload.removedPlayerId == currentPlayerId) {
+						status = 'results';
+					} else {
+						against = game.players.filter((p) => !p.isDead && p.id != currentPlayerId)[0].id;
+					}
+					break;
 			}
 		};
 	});
