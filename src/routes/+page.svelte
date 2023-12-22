@@ -328,6 +328,13 @@
 						.map((moveId) => moves.find((move) => move.id == moveId)?.title)
 						.join(', ')}
 				</p>
+				<p>
+					{#if selectedMove.needs}
+						<u>Uses:</u>
+						{selectedMove.needs.amount}
+						{selectedMove.needs.edition} reloads
+					{/if}
+				</p>
 			{:else if selectedMove.method == 'defense-offense'}
 				<p>
 					<u>Reflects:</u>
@@ -606,6 +613,7 @@
 		border-radius: 1rem;
 		padding: 0.5rem;
 		background-color: lightblue;
+		color: black;
 		cursor: pointer;
 		transition: all 0.2s ease-in-out;
 	}
