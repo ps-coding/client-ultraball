@@ -21,6 +21,7 @@
 		bazooka: 0,
 		spiral: 0
 	};
+
 	let against: number;
 
 	onMount(() => {
@@ -398,7 +399,7 @@
 	<h2>Waiting...</h2>
 	<p>{game.playersMoved.length} of {game.players.length} moved</p>
 	<ul>
-		{#each game.players as player}
+		{#each game.players.filter((p) => !p.isDead) as player}
 			<li>
 				{player.id}: {player.name} ({game.playersMoved.includes(player.id) ? 'moved' : 'moving'})
 				{#if isHost}
