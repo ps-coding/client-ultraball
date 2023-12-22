@@ -13,6 +13,7 @@ export type Player = {
 	socket: WebSocket;
 	name: string;
 	isDead: boolean;
+	bot: boolean;
 	move?: Move;
 	reloads: {
 		knife: number;

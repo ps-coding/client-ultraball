@@ -25,6 +25,12 @@
 	let against: number;
 
 	onMount(() => {
+		if (gameId && gameId != '') {
+			history.pushState(null, '', '/?gameId=' + gameId);
+		} else {
+			history.pushState(null, '', '/');
+		}
+
 		ws = new WebSocket('wss://server-ultraball.onrender.com');
 
 		ws.onopen = () => {
@@ -82,7 +88,14 @@
 		'connecting';
 
 	let name = '';
-	let gameId = $page.url.searchParams.get('gameId');
+	let gameId = '';
+	const gid = $page.url.searchParams.get('gameId');
+	if (gid) {
+		const gidInt = parseInt(gid);
+		if (gidInt && !isNaN(gidInt)) {
+			gameId = gidInt.toString();
+		}
+	}
 	let cap = '';
 
 	let errorMessage = '';
@@ -286,6 +299,13 @@
 		}}>🔗 <small>link</small></button
 	>
 	<p>Players:</p>
+	{#if isHost}
+		<button
+			on:click={() => {
+				ws.send(JSON.stringify({ type: 'add-bot' }));
+			}}>Add Bot</button
+		>
+	{/if}
 	<ul>
 		{#each game.players as player}
 			<li>
@@ -489,7 +509,7 @@
 	<h2>Waiting...</h2>
 	<p>{game.playersMoved.length} of {game.players.length} moved</p>
 	<ul>
-		{#each game.players.filter((p) => !p.isDead) as player}
+		{#each game.players.filter((p) => !p.isDead && !p.bot) as player}
 			<li>
 				{player.id}: {player.name} ({game.playersMoved.includes(player.id) ? 'moved' : 'moving'})
 				{#if isHost}
