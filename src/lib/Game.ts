@@ -100,6 +100,7 @@ export const moves = [
 		id: 'shield',
 		title: 'Shield',
 		method: 'defense',
+		defends: ['shotgun', 'knife', 'waterball', 'iceball', 'fireball', 'bazooka'],
 		penetrates: ['spiralball', 'deathsmoke'],
 		dir: 'all'
 	},
@@ -108,12 +109,14 @@ export const moves = [
 		title: 'Mirror',
 		method: 'defense-offense',
 		reflects: ['shotgun', 'waterball', 'iceball'],
+		penetrates: ['knife', 'fireball', 'bazooka', 'spiralball', 'deathsmoke'],
 		dir: 'one'
 	},
 	{
 		id: 'mask',
 		title: 'Mask',
 		method: 'defense',
+		defends: ['deathsmoke'],
 		penetrates: ['shotgun', 'knife', 'waterball', 'iceball', 'fireball', 'bazooka', 'spiralball'],
 		dir: 'all'
 	},
@@ -122,27 +125,31 @@ export const moves = [
 		title: 'Knife Sheath',
 		method: 'reload',
 		amount: 1,
-		dir: 'self'
+		dir: 'self',
+		for: ['knife', 'deathsmoke']
 	},
 	{
 		id: 'r-ball',
 		title: 'Ball Power',
 		method: 'reload',
 		amount: 1,
-		dir: 'self'
+		dir: 'self',
+		for: ['waterball', 'iceball', 'fireball', 'deathsmoke']
 	},
 	{
 		id: 'r-bazooka',
 		title: 'Bazooka Reload',
 		method: 'reload',
 		amount: 1,
-		dir: 'self'
+		dir: 'self',
+		for: ['bazooka', 'deathsmoke']
 	},
 	{
 		id: 'r-spiral',
 		title: 'Spiral Energy',
 		method: 'reload',
 		amount: 1,
-		dir: 'self'
+		dir: 'self',
+		for: ['spiralball', 'deathsmoke']
 	}
 ] as const;

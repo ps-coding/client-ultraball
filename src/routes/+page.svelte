@@ -72,7 +72,7 @@
 
 	let name = '';
 	let gameId = $page.url.searchParams.get('gameId');
-	let cap = '2';
+	let cap = '';
 
 	let errorMessage = '';
 
@@ -153,6 +153,18 @@
 		}
 		return true;
 	}
+
+	function forReloadsText(moveId: (typeof moves)[number]['id']) {
+		const move = moves.find((m) => m.id == moveId);
+		if (!move) return '';
+		if (move.method != 'offense') return '';
+		if (!move.needs) return '';
+		if (move.needs.edition == 'any') {
+			return move.title + ' (' + move.needs.amount + ' of any)';
+		} else {
+			return move.title + ' (' + move.needs.amount + ')';
+		}
+	}
 </script>
 
 <svelte:head>
@@ -191,12 +203,12 @@
 {:else if status === 'connected'}
 	<h2>Create/Join a Game</h2>
 	<div>
-		<label for="name">Screen Name:</label><input id="name" bind:value={name} />
+		<label for="name">Screen Name: </label><input id="name" bind:value={name} />
 		<br />
 		<br />
 		<div>
 			<div>
-				<label for="gameCode">Game Code:</label><input
+				<label for="gameCode">Game Code: </label><input
 					id="gameCode"
 					min="1"
 					type="number"
@@ -213,9 +225,8 @@
 					}}>Join</button
 				>
 			</div>
-			<div><i>OR</i></div>
 			<div>
-				<label for="cap">Cap:</label><input
+				<label for="cap">Player Cap: </label><input
 					id="cap"
 					type="number"
 					inputmode="numeric"
@@ -251,6 +262,7 @@
 				{player.id}: {player.name}
 				{#if isHost}
 					<button
+						class="remove-button"
 						on:click={() =>
 							ws.send(JSON.stringify({ type: 'kick-out', payload: { playerId: player.id } }))}
 						>Remove</button
@@ -278,20 +290,52 @@
 	{#if selectedMove}
 		<div class="move-card">
 			<p><b>Move Statistics</b></p>
-			<p>Name: {selectedMove.title}</p>
-			<p>Direction: {selectedMove.dir}</p>
-			<p>Method: {selectedMove.method}</p>
+			<p><u>Name:</u> {selectedMove.title}</p>
+			<p><u>Direction:</u> {selectedMove.dir}</p>
+			<p><u>Method:</u> {selectedMove.method}</p>
 			{#if selectedMove.method == 'offense' && selectedMove.needs?.edition == 'any'}
-				<p>Needs: {selectedMove.needs.amount} reloads (any)</p>
+				<p><u>Needs:</u> {selectedMove.needs.amount} reloads (any)</p>
 			{:else if selectedMove.method == 'offense' && selectedMove.needs?.edition}
-				<p>Needs: {selectedMove.needs.amount} {selectedMove.needs.edition} reloads</p>
+				<p><u>Needs</u>: {selectedMove.needs.amount} {selectedMove.needs.edition} reloads</p>
 			{/if}
 			{#if selectedMove.method == 'offense'}
-				<p>Beats: {selectedMove.beats.join(', ')}</p>
+				<p>
+					<u>Beats:</u>
+					{selectedMove.beats
+						.map((moveId) => moves.find((move) => move.id == moveId)?.title)
+						.join(', ')}
+				</p>
 			{:else if selectedMove.method == 'defense-offense'}
-				<p>Reflects: {selectedMove.reflects.join(', ')}</p>
+				<p>
+					<u>Reflects:</u>
+					{selectedMove.reflects
+						.map((moveId) => moves.find((move) => move.id == moveId)?.title)
+						.join(', ')}
+				</p>
+				<p>
+					<u>Penetrated By:</u>
+					{selectedMove.penetrates
+						.map((moveId) => moves.find((move) => move.id == moveId)?.title)
+						.join(', ')}
+				</p>
 			{:else if selectedMove.method == 'defense'}
-				<p>Penetrated by: {selectedMove.penetrates.join(', ')}</p>
+				<p>
+					<u>Defends Against:</u>
+					{selectedMove.defends
+						.map((moveId) => moves.find((move) => move.id == moveId)?.title)
+						.join(', ')}
+				</p>
+				<p>
+					<u>Penetrated By:</u>
+					{selectedMove.penetrates
+						.map((moveId) => moves.find((move) => move.id == moveId)?.title)
+						.join(', ')}
+				</p>
+			{:else if selectedMove.method == 'reload'}
+				<p>
+					<u>Needed For:</u>
+					{selectedMove.for.map(forReloadsText).join(', ')}
+				</p>
 			{/if}
 		</div>
 	{/if}
@@ -404,6 +448,7 @@
 				{player.id}: {player.name} ({game.playersMoved.includes(player.id) ? 'moved' : 'moving'})
 				{#if isHost}
 					<button
+						class="remove-button"
 						on:click={() =>
 							ws.send(JSON.stringify({ type: 'kick-out', payload: { playerId: player.id } }))}
 						>Remove</button
@@ -414,6 +459,7 @@
 	</ul>
 	{#if isHost}
 		<button
+			class="remove-button"
 			on:click={() => {
 				ws.send(JSON.stringify({ type: 'skip' }));
 			}}>Skip</button
@@ -443,7 +489,7 @@
 					<b>{player.id}: {player.name}</b>
 				</p>
 				<p><u>Status:</u> {player.isDead ? 'Dead' : 'Alive'}</p>
-				<p>{playerMoveText(player)}</p>
+				<p><u>Move:</u> {playerMoveText(player)}</p>
 				<br />
 				<p><u>Reloads:</u></p>
 				<ul>
@@ -494,7 +540,7 @@
 						<b>{player.id}: {player.name}</b>
 					</p>
 					<p><u>Status:</u> {player.isDead ? 'Dead' : 'Alive'}</p>
-					<p>{playerMoveText(player)}</p>
+					<p><u>Move:</u> {playerMoveText(player)}</p>
 					<br />
 					<p><u>Reloads:</u></p>
 					<ul>
@@ -527,6 +573,69 @@
 		border-radius: 1rem;
 		padding: 1rem;
 		background-color: lightgray;
-		max-width: 500px;
+		max-width: 600px;
+	}
+
+	button {
+		border: 1px solid black;
+		border-radius: 1rem;
+		padding: 0.5rem;
+		background-color: lightblue;
+		cursor: pointer;
+		transition: all 0.2s ease-in-out;
+	}
+
+	button:hover,
+	button:focus {
+		border-radius: 0.75rem;
+		background-color: lightgreen;
+		color: black;
+	}
+
+	button:active {
+		border-radius: 0.5rem;
+		background-color: yellowgreen;
+	}
+
+	button:disabled {
+		background-color: gray;
+		color: whitesmoke;
+		border-radius: 0.35rem;
+		cursor: not-allowed;
+	}
+
+	.remove-button {
+		background-color: red;
+		color: white;
+		padding: 0.35rem;
+	}
+
+	.remove-button:hover,
+	.remove-button:focus {
+		background-color: darkred;
+		color: white;
+	}
+
+	.remove-button:active {
+		background-color: orange;
+		color: black;
+	}
+
+	input {
+		border: 1px solid black;
+		border-radius: 1rem;
+		padding: 0.5rem;
+		background-color: lightblue;
+		transition: all 0.2s ease-in-out;
+	}
+
+	input:hover {
+		border-radius: 0.9rem;
+		background-color: yellowgreen;
+	}
+
+	input:focus {
+		border-radius: 0.75rem;
+		background-color: lightgreen;
 	}
 </style>
