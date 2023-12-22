@@ -325,7 +325,11 @@
 			{#if selectedMove.method == 'offense' && selectedMove.needs?.edition == 'any'}
 				<p><u>Needs:</u> {selectedMove.needs.amount} reloads (any)</p>
 			{:else if selectedMove.method == 'offense' && selectedMove.needs?.edition}
-				<p><u>Needs</u>: {selectedMove.needs.amount} {selectedMove.needs.edition} reloads</p>
+				<p>
+					<u>Needs</u>: {selectedMove.needs.amount}
+					{selectedMove.needs.edition}
+					{selectedMove.needs.amount != 1 ? 'reloads' : 'reload'}
+				</p>
 			{/if}
 			{#if selectedMove.method == 'offense'}
 				<p>
@@ -333,15 +337,6 @@
 					{selectedMove.beats
 						.map((moveId) => moves.find((move) => move.id == moveId)?.title)
 						.join(', ')}
-				</p>
-				<p>
-					{#if selectedMove.needs}
-						<u>Uses:</u>
-						{selectedMove.needs.amount}
-						{selectedMove.needs.edition == 'any'
-							? 'of any'
-							: selectedMove.needs.edition + ' reloads'}
-					{/if}
 				</p>
 			{:else if selectedMove.method == 'defense-offense'}
 				<p>
