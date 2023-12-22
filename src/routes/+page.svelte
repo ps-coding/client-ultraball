@@ -40,6 +40,10 @@
 
 			game = payload.game;
 
+			if (window.location.pathname != '/?gameId=' + game.id.toString()) {
+				history.pushState(null, '', '/?gameId=' + game.id.toString());
+			}
+
 			switch (type) {
 				case 'game-created':
 					isHost = true;
@@ -182,8 +186,6 @@
 		property="og:description"
 		content="The traditional game of shotgun/war codified and taken to the next level with more possible moves and avenues. It's online, free, ad-free, and multiplayer, so try it out!"
 	/>
-	<meta property="og:image" content="https://ultra.shahprasham.com/favicon.png" />
-	<meta property="og:url" content="https://ultra.shahprasham.com" />
 </svelte:head>
 
 <h1>
@@ -203,18 +205,39 @@
 {:else if status === 'connected'}
 	<h2>Create/Join a Game</h2>
 	<div>
-		<label for="name">Screen Name: </label><input id="name" bind:value={name} />
+		<label for="name">Screen Name: </label><input
+			class="has-clear-button"
+			id="name"
+			bind:value={name}
+		/><button
+			class="clear-button"
+			on:click={() => {
+				name = '';
+			}}
+		>
+			✕
+		</button>
 		<br />
 		<br />
 		<div>
 			<div>
 				<label for="gameCode">Game Code: </label><input
+					class="hide-arrows has-clear-button"
 					id="gameCode"
 					min="1"
 					type="number"
 					inputmode="numeric"
 					bind:value={gameId}
 				/>
+				<button
+					class="clear-button"
+					on:click={() => {
+						history.pushState(null, '', '/');
+						gameId = '';
+					}}
+				>
+					✕
+				</button>
 				<button
 					disabled={!name || name == '' || !gameId || parseInt(gameId) < 1}
 					on:click={() => {
@@ -252,7 +275,7 @@
 	>
 	<button
 		on:click={() => {
-			navigator.clipboard.writeText('https://ultra.shahprasham.com/?gameId=' + game.id.toString());
+			navigator.clipboard.writeText(window.location.href);
 		}}>🔗 <small>link</small></button
 	>
 	<p>Players:</p>
@@ -506,7 +529,8 @@
 		<p>Sorry, you were disconnected from the server.</p>
 		<button
 			on:click={() => {
-				window.location.href = 'https://ultra.shahprasham.com/';
+				history.pushState(null, '', '/');
+				window.location.reload();
 			}}>Play Again</button
 		>
 	{:else}
@@ -527,7 +551,8 @@
 		<br />
 		<button
 			on:click={() => {
-				window.location.href = 'https://ultra.shahprasham.com/';
+				history.pushState(null, '', '/');
+				window.location.reload();
 			}}>Play Again</button
 		>
 		<br />
@@ -621,6 +646,18 @@
 		color: black;
 	}
 
+	.clear-button,
+	.clear-button:hover,
+	.clear-button:focus,
+	.clear-button:active {
+		background-color: transparent;
+		color: darkgray;
+		padding: 0;
+		margin-left: -1.4rem;
+		margin-right: 0.5rem;
+		border: none;
+	}
+
 	input {
 		border: 1px solid black;
 		border-radius: 1rem;
@@ -637,5 +674,20 @@
 	input:focus {
 		border-radius: 0.75rem;
 		background-color: lightgreen;
+	}
+
+	.has-clear-button {
+		padding-right: 1.7rem;
+	}
+
+	.hide-arrows::-webkit-outer-spin-button,
+	.hide-arrows::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+
+	.hide-arrows[type='number'] {
+		-moz-appearance: textfield;
+		appearance: textfield;
 	}
 </style>
