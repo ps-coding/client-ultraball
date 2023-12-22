@@ -507,7 +507,14 @@
 	>
 {:else if status === 'moved'}
 	<h2>Waiting...</h2>
-	<p>{game.playersMoved.length} of {game.players.length} moved</p>
+	<p>
+		{game.playersMoved.length} of {game.players.filter((p) => !p.isDead && !p.bot).length} moved
+	</p>
+	<small
+		>{game.players.filter((p) => p.isDead).length} dead (don't move) and {game.players.filter(
+			(p) => p.bot && !p.isDead
+		).length} bots (move randomly after all players)</small
+	>
 	<ul>
 		{#each game.players.filter((p) => !p.isDead && !p.bot) as player}
 			<li>
