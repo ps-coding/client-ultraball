@@ -323,7 +323,10 @@
 	</ul>
 	{#if isHost}
 		<br />
-		<button on:click={() => ws.send(JSON.stringify({ type: 'start-game' }))}>Start</button>
+		<button
+			disabled={game.players.filter((p) => !p.bot).length <= 1}
+			on:click={() => ws.send(JSON.stringify({ type: 'start-game' }))}>Start</button
+		>
 	{/if}
 {:else if status === 'move'}
 	<h2>Make Your Move</h2>
@@ -513,7 +516,9 @@
 	<small
 		>{game.players.filter((p) => p.isDead).length} dead (don't move) and {game.players.filter(
 			(p) => p.bot && !p.isDead
-		).length} bots (move randomly after all players)</small
+		).length}
+		{game.players.filter((p) => p.bot && !p.isDead).length != 1 ? 'bots' : 'bot'} (move randomly after
+		all players)</small
 	>
 	<ul>
 		{#each game.players.filter((p) => !p.isDead && !p.bot) as player}
