@@ -314,8 +314,14 @@
 		<div class="move-card">
 			<p><b>Move Statistics</b></p>
 			<p><u>Name:</u> {selectedMove.title}</p>
-			<p><u>Direction:</u> {selectedMove.dir}</p>
-			<p><u>Method:</u> {selectedMove.method}</p>
+			<p>
+				<u>Method:</u>
+				{selectedMove.method.charAt(0).toUpperCase() + selectedMove.method.slice(1)}
+			</p>
+			<p>
+				<u>Direction:</u>
+				{selectedMove.dir.charAt(0).toUpperCase() + selectedMove.dir.slice(1)}
+			</p>
 			{#if selectedMove.method == 'offense' && selectedMove.needs?.edition == 'any'}
 				<p><u>Needs:</u> {selectedMove.needs.amount} reloads (any)</p>
 			{:else if selectedMove.method == 'offense' && selectedMove.needs?.edition}
@@ -332,7 +338,9 @@
 					{#if selectedMove.needs}
 						<u>Uses:</u>
 						{selectedMove.needs.amount}
-						{selectedMove.needs.edition} reloads
+						{selectedMove.needs.edition == 'any'
+							? 'of any'
+							: selectedMove.needs.edition + ' reloads'}
 					{/if}
 				</p>
 			{:else if selectedMove.method == 'defense-offense'}
