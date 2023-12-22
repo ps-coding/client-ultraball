@@ -332,12 +332,18 @@
 				</p>
 			{/if}
 			{#if selectedMove.method == 'offense'}
-				<p>
-					<u>Beats:</u>
-					{selectedMove.beats
-						.map((moveId) => moves.find((move) => move.id == moveId)?.title)
-						.join(', ')}
-				</p>
+				{#if selectedMove.beats.length > 0}
+					<p>
+						<u>Beats:</u>
+						{selectedMove.beats
+							.map((moveId) => moves.find((move) => move.id == moveId)?.title)
+							.join(', ')}
+					</p>
+				{:else}
+					<p>
+						<u>Beats:</u> Nothing (but still may be useful for penetrating certain defenses)
+					</p>
+				{/if}
 			{:else if selectedMove.method == 'defense-offense'}
 				<p>
 					<u>Reflects:</u>
