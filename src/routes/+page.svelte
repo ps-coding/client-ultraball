@@ -250,6 +250,14 @@
 					type="number"
 					inputmode="numeric"
 					bind:value={gameId}
+					on:keydown={(e) => {
+						if (e.key == 'Enter') {
+							if (name && name != '' && gameId && parseInt(gameId) > 0)
+								ws.send(
+									JSON.stringify({ type: 'join-game', payload: { name, gameId: parseInt(gameId) } })
+								);
+						}
+					}}
 				/>
 				<button
 					class="clear-button"
@@ -263,7 +271,7 @@
 				<button
 					disabled={!name || name == '' || !gameId || parseInt(gameId) < 1}
 					on:click={() => {
-						if (gameId && name)
+						if (name && name != '' && gameId && parseInt(gameId) > 0)
 							ws.send(
 								JSON.stringify({ type: 'join-game', payload: { name, gameId: parseInt(gameId) } })
 							);
@@ -277,12 +285,25 @@
 					inputmode="numeric"
 					min="2"
 					bind:value={cap}
+					on:keydown={(e) => {
+						if (e.key == 'Enter') {
+							if (name && name != '' && cap && parseInt(cap) > 1) {
+								ws.send(
+									JSON.stringify({ type: 'create-game', payload: { name, cap: parseInt(cap) } })
+								);
+							}
+						}
+					}}
 				/>
 				<button
 					disabled={!name || name == '' || !cap || parseInt(cap) < 2}
-					on:click={() =>
-						ws.send(JSON.stringify({ type: 'create-game', payload: { name, cap: parseInt(cap) } }))}
-					>Create</button
+					on:click={() => {
+						if (name && name != '' && cap && parseInt(cap) > 1) {
+							ws.send(
+								JSON.stringify({ type: 'create-game', payload: { name, cap: parseInt(cap) } })
+							);
+						}
+					}}>Create</button
 				>
 			</div>
 		</div>
@@ -568,7 +589,7 @@
 		<h4>Moved This Turn</h4>
 		<div class="player-cards">
 			{#each game.players.filter((p) => p.move) as player}
-				<div class="player-card">
+				<div class="player-card" class:alive={!player.isDead} class:dead={player.isDead}>
 					<p>
 						<b>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</b>
 					</p>
@@ -588,7 +609,7 @@
 		<h4>Did Not Move (Dead or Skipped)</h4>
 		<div class="player-cards">
 			{#each game.players.filter((p) => !p.move) as player}
-				<div class="player-card">
+				<div class="player-card" class:alive={!player.isDead}>
 					<p>
 						<b>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</b>
 					</p>
@@ -705,6 +726,14 @@
 		border-radius: 1rem;
 		padding: 1rem;
 		background-color: lightgray;
+	}
+
+	.alive {
+		background-color: lightgreen;
+	}
+
+	.dead {
+		background-color: crimson;
 	}
 
 	.move-card {
