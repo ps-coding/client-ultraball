@@ -217,11 +217,13 @@
 		>
 	{/if}
 	{#if isHost && game?.gameStarted && !game?.gameEnded}
-		<button on:click={() => ws.send(JSON.stringify({ type: 'end-game' }))}>End Game</button>
+		<button class="remove-button" on:click={() => ws.send(JSON.stringify({ type: 'end-game' }))}
+			>End Game</button
+		>
 	{/if}
 </h1>
 {#if status === 'connecting'}
-	<p>Connecting...</p>
+	<h2>Connecting...</h2>
 {:else if status === 'connected'}
 	<h2>Create/Join a Game</h2>
 	<div>
@@ -287,17 +289,19 @@
 	</div>
 {:else if status === 'lobby'}
 	<h2>Lobby</h2>
-	Game Code: {game.id}
-	<button
-		on:click={() => {
-			navigator.clipboard.writeText(game.id.toString());
-		}}>📋 <small>code</small></button
-	>
-	<button
-		on:click={() => {
-			navigator.clipboard.writeText(window.location.href);
-		}}>🔗 <small>link</small></button
-	>
+	<h3>
+		Game Code: {game.id}
+		<button
+			on:click={() => {
+				navigator.clipboard.writeText(game.id.toString());
+			}}>📋 <small>code</small></button
+		>
+		<button
+			on:click={() => {
+				navigator.clipboard.writeText(window.location.href);
+			}}>🔗 <small>link</small></button
+		>
+	</h3>
 	<p>Players:</p>
 	{#if isHost}
 		<button
@@ -546,10 +550,10 @@
 {:else if status === 'update'}
 	<h2>All Moves Executed: Update</h2>
 	{#if game.players.find((p) => p.id == currentPlayerId)?.isDead}
-		<p>💀 You died!</p>
+		<h3>💀 You died!</h3>
 		<p>You can spectate the game from here.</p>
 	{:else}
-		<p>😊 You survived!</p>
+		<h3>😊 You survived!</h3>
 		<button
 			on:click={() => {
 				against = game.players.filter((p) => !p.isDead && p.id != currentPlayerId)[0].id;
@@ -590,14 +594,14 @@
 		>
 	{:else}
 		<h2>Results</h2>
-		<b
-			>You {game.players.find((p) => p.id == currentPlayerId)?.isDead
+		<h3>
+			You {game.players.find((p) => p.id == currentPlayerId)?.isDead
 				? 'died 💀 (lost)!'
-				: 'survived 😊 (won)!'}</b
-		>
+				: 'survived 😊 (won)!'}
+		</h3>
 		<br />
 		<br />
-		<p>All Players Summary:</p>
+		<h4>All Players Summary:</h4>
 		<ul>
 			{#each game.players as player}
 				<li><b>{player.id}: {player.name}</b> {player.isDead ? 'died' : 'survived'}</li>
@@ -612,7 +616,7 @@
 		>
 		<br />
 		<br />
-		<p>Final Move Details:</p>
+		<h4>Final Move Details:</h4>
 		<div class="player-cards">
 			{#each game.players as player}
 				<div class="player-card">
