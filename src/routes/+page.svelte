@@ -418,7 +418,7 @@
 		<select bind:value={against}>
 			{#each game.players.filter((p) => !p.isDead) as player}
 				{#if player.id !== currentPlayerId}
-					<option value={player.id}>{player.id}: {player.name}</option>
+					<option value={player.id}>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</option>
 				{/if}
 			{/each}
 		</select>
@@ -564,24 +564,45 @@
 	{/if}
 	<br />
 	<br />
-	<div class="player-cards">
-		{#each game.players as player}
-			<div class="player-card">
-				<p>
-					<b>{player.id}: {player.name}</b>
-				</p>
-				<p><u>Status:</u> {player.isDead ? 'Dead' : 'Alive'}</p>
-				<p><u>Move:</u> {playerMoveText(player)}</p>
-				<br />
-				<p><u>Reloads:</u></p>
-				<ul>
-					{#each playerReloadTextArray(player) as reload}
-						<li>{reload}</li>
-					{/each}
-				</ul>
-			</div>
-		{/each}
-	</div>
+	{#if game.players.filter((p) => p.move).length}
+		<h4>Moved This Turn</h4>
+		<div class="player-cards">
+			{#each game.players.filter((p) => p.move) as player}
+				<div class="player-card">
+					<p>
+						<b>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</b>
+					</p>
+					<p><u>Status:</u> {player.isDead ? 'Dead 💀' : 'Alive 😊'}</p>
+					<p><u>Move:</u> {playerMoveText(player)}</p>
+					<p><u>Reloads:</u></p>
+					<ul>
+						{#each playerReloadTextArray(player) as reload}
+							<li>{reload}</li>
+						{/each}
+					</ul>
+				</div>
+			{/each}
+		</div>
+	{/if}
+	{#if game.players.filter((p) => !p.move).length}
+		<h4>Did Not Move (Dead or Skipped)</h4>
+		<div class="player-cards">
+			{#each game.players.filter((p) => !p.move) as player}
+				<div class="player-card">
+					<p>
+						<b>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</b>
+					</p>
+					<p><u>Status:</u> {player.isDead ? 'Dead 💀' : 'Alive 😊'}</p>
+					<p><u>Reloads:</u></p>
+					<ul>
+						{#each playerReloadTextArray(player) as reload}
+							<li>{reload}</li>
+						{/each}
+					</ul>
+				</div>
+			{/each}
+		</div>
+	{/if}
 {:else if status === 'results'}
 	{#if !game}
 		<h2>Disconnected</h2>
@@ -593,20 +614,33 @@
 			}}>Play Again</button
 		>
 	{:else}
-		<h2>Results</h2>
+		<h2>Results ({game.gameEnded ? 'Game Over' : 'Disconnected'})</h2>
 		<h3>
 			You {game.players.find((p) => p.id == currentPlayerId)?.isDead
 				? 'died 💀 (lost)!'
 				: 'survived 😊 (won)!'}
 		</h3>
-		<br />
-		<br />
-		<h4>All Players Summary:</h4>
+		<h4>All Players (🧑) Summary</h4>
 		<ul>
-			{#each game.players as player}
-				<li><b>{player.id}: {player.name}</b> {player.isDead ? 'died' : 'survived'}</li>
+			{#each game.players
+				.filter((p) => !p.bot)
+				.sort( (p1, p2) => (!p1.isDead && p2.isDead ? -1 : !p2.isDead && p1.isDead ? 1 : 0) ) as player}
+				<li>
+					<b>{player.id}: {player.name}</b>
+					{player.isDead ? 'died 💀 (lost)' : 'survived 😊 (won)'}
+				</li>
 			{/each}
 		</ul>
+		{#if game.players.filter((p) => p.bot).length}
+			<h4>All Bots (🤖) Summary</h4>
+			<ul>
+				{#each game.players
+					.filter((p) => p.bot)
+					.sort( (p1, p2) => (!p1.isDead && p2.isDead ? -1 : !p2.isDead && p1.isDead ? 1 : 0) ) as player}
+					<li><b>{player.id}: {player.name}</b> {player.isDead ? 'died 💀' : 'survived 😊'}</li>
+				{/each}
+			</ul>
+		{/if}
 		<br />
 		<button
 			on:click={() => {
@@ -616,25 +650,46 @@
 		>
 		<br />
 		<br />
-		<h4>Final Move Details:</h4>
-		<div class="player-cards">
-			{#each game.players as player}
-				<div class="player-card">
-					<p>
-						<b>{player.id}: {player.name}</b>
-					</p>
-					<p><u>Status:</u> {player.isDead ? 'Dead' : 'Alive'}</p>
-					<p><u>Move:</u> {playerMoveText(player)}</p>
-					<br />
-					<p><u>Reloads:</u></p>
-					<ul>
-						{#each playerReloadTextArray(player) as reload}
-							<li>{reload}</li>
-						{/each}
-					</ul>
-				</div>
-			{/each}
-		</div>
+		<h4>Final Update Details</h4>
+		{#if game.players.filter((p) => p.move).length}
+			<h5>Moved This Turn</h5>
+			<div class="player-cards">
+				{#each game.players.filter((p) => p.move) as player}
+					<div class="player-card">
+						<p>
+							<b>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</b>
+						</p>
+						<p><u>Status:</u> {player.isDead ? 'Dead 💀' : 'Alive 😊'}</p>
+						<p><u>Move:</u> {playerMoveText(player)}</p>
+						<p><u>Reloads:</u></p>
+						<ul>
+							{#each playerReloadTextArray(player) as reload}
+								<li>{reload}</li>
+							{/each}
+						</ul>
+					</div>
+				{/each}
+			</div>
+		{/if}
+		{#if game.players.filter((p) => !p.move).length}
+			<h5>Did Not Move (Dead or Skipped)</h5>
+			<div class="player-cards">
+				{#each game.players.filter((p) => !p.move) as player}
+					<div class="player-card">
+						<p>
+							<b>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</b>
+						</p>
+						<p><u>Status:</u> {player.isDead ? 'Dead 💀' : 'Alive 😊'}</p>
+						<p><u>Reloads:</u></p>
+						<ul>
+							{#each playerReloadTextArray(player) as reload}
+								<li>{reload}</li>
+							{/each}
+						</ul>
+					</div>
+				{/each}
+			</div>
+		{/if}
 	{/if}
 {/if}
 
