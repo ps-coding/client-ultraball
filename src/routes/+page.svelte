@@ -357,6 +357,7 @@
 				}}>🔗 <small>link</small></button
 			>
 		{:else}
+			<br />
 			You're playing solo! Add as many bots as you want and then start.
 		{/if}
 	</h3>
