@@ -346,7 +346,7 @@
 	<h2>Lobby</h2>
 	<h3>
 		Game Code: {game.id}
-		{#if game.players.filter((p) => !p.bot).length > 1}
+		{#if game.players.filter((p) => !p.bot).length > 1 || game.cap > 1}
 			<button
 				on:click={() => {
 					navigator.clipboard.writeText(game.id.toString());
