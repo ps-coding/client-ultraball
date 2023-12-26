@@ -336,6 +336,7 @@
 				<input type="checkbox" id="lastPlayerKeepsPlaying" bind:checked={lastPlayerKeepsPlaying} />
 				<label for="lastPlayerKeepsPlaying"
 					>Last Player Keeps Battling Bots (if applicable)? {lastPlayerKeepsPlaying ? 'Yes' : 'No'}
+					<br />
 					<small>(Needed for Solo)</small></label
 				>
 			</div>
@@ -345,7 +346,7 @@
 	<h2>Lobby</h2>
 	<h3>
 		Game Code: {game.id}
-		{#if game.cap > 0}
+		{#if game.players.filter((p) => !p.bot).length > 1}
 			<button
 				on:click={() => {
 					navigator.clipboard.writeText(game.id.toString());
