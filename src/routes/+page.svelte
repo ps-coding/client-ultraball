@@ -247,7 +247,7 @@
 		<br />
 		<div>
 			<div>
-				<label for="gameCode">Game Code: </label><input
+				<label for="gameCode">Game Code (#): </label><input
 					class="hide-arrows has-clear-button"
 					id="gameCode"
 					min="1"
@@ -284,7 +284,7 @@
 			</div>
 			<br />
 			<div>
-				<label for="cap">Player Cap: </label><input
+				<label for="cap">Player Cap (🧑): </label><input
 					id="cap"
 					type="number"
 					inputmode="numeric"
@@ -335,7 +335,8 @@
 				<br />
 				<input type="checkbox" id="lastPlayerKeepsPlaying" bind:checked={lastPlayerKeepsPlaying} />
 				<label for="lastPlayerKeepsPlaying"
-					>Last Player Keeps Playing Against Bots (if applicable)</label
+					>Last Player Keeps Battling Bots (if applicable)? {lastPlayerKeepsPlaying ? 'Yes' : 'No'}
+					<small>(Needed for Solo)</small></label
 				>
 			</div>
 		</div>
@@ -344,16 +345,20 @@
 	<h2>Lobby</h2>
 	<h3>
 		Game Code: {game.id}
-		<button
-			on:click={() => {
-				navigator.clipboard.writeText(game.id.toString());
-			}}>📋 <small>code</small></button
-		>
-		<button
-			on:click={() => {
-				navigator.clipboard.writeText(window.location.href);
-			}}>🔗 <small>link</small></button
-		>
+		{#if game.cap > 0}
+			<button
+				on:click={() => {
+					navigator.clipboard.writeText(game.id.toString());
+				}}>📋 <small>code</small></button
+			>
+			<button
+				on:click={() => {
+					navigator.clipboard.writeText(window.location.href);
+				}}>🔗 <small>link</small></button
+			>
+		{:else}
+			You're playing solo! Add as many bots as you want and then start.
+		{/if}
 	</h3>
 	<p>Players:</p>
 	{#if isHost}
