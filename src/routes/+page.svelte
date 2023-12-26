@@ -98,6 +98,8 @@
 	}
 	let cap = '';
 
+	let lastPlayerKeepsPlaying = false;
+
 	let errorMessage = '';
 
 	function playerMoveText(player: Player) {
@@ -227,18 +229,20 @@
 {:else if status === 'connected'}
 	<h2>Create/Join a Game</h2>
 	<div>
-		<label for="name">Screen Name: </label><input
-			class="has-clear-button"
-			id="name"
-			bind:value={name}
-		/><button
-			class="clear-button"
-			on:click={() => {
-				name = '';
-			}}
-		>
-			✕
-		</button>
+		<div>
+			<label for="name">Screen Name: </label><input
+				class="has-clear-button"
+				id="name"
+				bind:value={name}
+			/><button
+				class="clear-button"
+				on:click={() => {
+					name = '';
+				}}
+			>
+				✕
+			</button>
+		</div>
 		<br />
 		<br />
 		<div>
@@ -278,32 +282,60 @@
 					}}>Join</button
 				>
 			</div>
+			<br />
 			<div>
 				<label for="cap">Player Cap: </label><input
 					id="cap"
 					type="number"
 					inputmode="numeric"
-					min="2"
+					min={lastPlayerKeepsPlaying ? 1 : 2}
 					bind:value={cap}
 					on:keydown={(e) => {
 						if (e.key == 'Enter') {
-							if (name && name != '' && cap && parseInt(cap) > 1) {
+							if (
+								name &&
+								name != '' &&
+								cap &&
+								parseInt(cap) > 0 &&
+								(lastPlayerKeepsPlaying || parseInt(cap) > 1)
+							) {
 								ws.send(
-									JSON.stringify({ type: 'create-game', payload: { name, cap: parseInt(cap) } })
+									JSON.stringify({
+										type: 'create-game',
+										payload: { name, cap: parseInt(cap), lastPlayerKeepsPlaying }
+									})
 								);
 							}
 						}
 					}}
 				/>
 				<button
-					disabled={!name || name == '' || !cap || parseInt(cap) < 2}
+					disabled={!name ||
+						name == '' ||
+						!cap ||
+						parseInt(cap) < 1 ||
+						(!lastPlayerKeepsPlaying && parseInt(cap) < 2)}
 					on:click={() => {
-						if (name && name != '' && cap && parseInt(cap) > 1) {
+						if (
+							name &&
+							name != '' &&
+							cap &&
+							parseInt(cap) > 0 &&
+							(lastPlayerKeepsPlaying || parseInt(cap) > 1)
+						) {
 							ws.send(
-								JSON.stringify({ type: 'create-game', payload: { name, cap: parseInt(cap) } })
+								JSON.stringify({
+									type: 'create-game',
+									payload: { name, cap: parseInt(cap), lastPlayerKeepsPlaying }
+								})
 							);
 						}
 					}}>Create</button
+				>
+				<br />
+				<input type="checkbox" id="lastPlayerKeepsPlaying" bind:checked={lastPlayerKeepsPlaying} />
+				<label for="lastPlayerKeepsPlaying"
+					>Last Player Keeps Playing Against Bots (if applicable)</label
 				>
 			</div>
 		</div>
@@ -349,7 +381,10 @@
 	{#if isHost}
 		<br />
 		<button
-			disabled={game.players.filter((p) => !p.bot).length <= 1}
+			disabled={game.players.filter((p) => !p.bot).length <= 0 ||
+				(!game.lastPlayerKeepsPlaying && game.players.filter((p) => !p.bot).length <= 1) ||
+				(game.players.filter((p) => p.bot).length < 1 &&
+					game.players.filter((p) => !p.bot).length < 2)}
 			on:click={() => ws.send(JSON.stringify({ type: 'start-game' }))}>Start</button
 		>
 	{/if}
@@ -447,11 +482,13 @@
 	{#if selectedMove && selectedMove.method == 'offense' && selectedMove.needs?.edition == 'any'}
 		<br />
 		<br />
-		Using Reloads:
+		<b>Using Reloads</b>
 		<br />
 		{#each reloadsArray(game.players.find((p) => p.id == currentPlayerId)) as reload}
 			{#if reload.amount > 0}
-				<label for="reload-{reload.edition}">{reload.edition}:</label>
+				<label for="reload-{reload.edition}"
+					>{reload.edition.charAt(0).toUpperCase() + reload.edition.slice(1)}:</label
+				>
 				<input
 					type="number"
 					inputmode="numeric"
