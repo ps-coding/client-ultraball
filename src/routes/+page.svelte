@@ -488,8 +488,7 @@
 	{/if}
 	{#if selectedMove && selectedMove.method == 'offense' && selectedMove.needs?.edition == 'any'}
 		<br />
-		<br />
-		<b>Using Reloads</b>
+		Using Reloads:
 		<br />
 		{#each reloadsArray(game.players.find((p) => p.id == currentPlayerId)) as reload}
 			{#if reload.amount > 0}
