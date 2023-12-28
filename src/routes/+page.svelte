@@ -265,6 +265,13 @@
 		<button class="remove-button" on:click={() => ws.send(JSON.stringify({ type: 'end-game' }))}
 			>End Game</button
 		>
+	{:else}
+		<button
+			class="remove-button"
+			on:click={() =>
+				ws.send(JSON.stringify({ type: 'leave-game', payload: { playerId: currentPlayerId } }))}
+			>Leave Game</button
+		>
 	{/if}
 </h1>
 {#if status === 'connecting'}
