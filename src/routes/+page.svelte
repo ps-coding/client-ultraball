@@ -44,6 +44,13 @@
 		ws.onmessage = (data) => {
 			const { type, payload } = JSONRetrocycle(JSON.parse(data.data));
 
+			if (type == 'error') {
+				bigError = payload.error;
+				return;
+			} else {
+				bigError = '';
+			}
+
 			if (type == 'available-games-found') {
 				searchedGames = payload.availableGames;
 				return;
@@ -126,6 +133,7 @@
 	}[] = [];
 
 	let errorMessage = '';
+	let bigError = '';
 
 	function playerMoveText(player: Player) {
 		if (player.move) {
@@ -586,7 +594,7 @@
 		{/each}
 	{/if}
 
-	<p>{errorMessage != '' ? 'Error: ' + errorMessage : ''}</p>
+	<p class="error">{errorMessage != '' ? 'Error: ' + errorMessage : ''}</p>
 
 	<button
 		on:click={() => {
@@ -840,6 +848,10 @@
 		{/if}
 	{/if}
 {/if}
+{#if bigError != ''}
+	<br />
+	<p class="error">{bigError}</p>
+{/if}
 
 <style>
 	.player-cards {
@@ -960,5 +972,9 @@
 	.hide-arrows[type='number'] {
 		-moz-appearance: textfield;
 		appearance: textfield;
+	}
+
+	.error {
+		color: crimson;
 	}
 </style>
