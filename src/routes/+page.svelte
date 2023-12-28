@@ -121,6 +121,7 @@
 		| 'lobby'
 		| 'move'
 		| 'processing'
+		| 'player-details'
 		| 'moved'
 		| 'update'
 		| 'results' = 'connecting';
@@ -530,7 +531,14 @@
 		>
 	{/if}
 {:else if status === 'move'}
-	<h2>Make Your Move</h2>
+	<h2>
+		Make Your Move
+		<button
+			on:click={() => {
+				status = 'player-details';
+			}}>See Player Details</button
+		>
+	</h2>
 	Move:
 	<select bind:value={selectedMove}>
 		{#each moves as move}
@@ -716,6 +724,87 @@
 {:else if status === 'processing'}
 	<h2>Processing your move...</h2>
 	<p>Your move is loading into the system. Please wait.</p>
+{:else if status === 'player-details'}
+	<h2>Player Details</h2>
+	<button
+		on:click={() => {
+			status = 'move';
+		}}>Back</button
+	>
+	<h3>You</h3>
+	<div class="player-cards">
+		{#each game.players.filter((p) => p.id == currentPlayerId) as player}
+			<div class="player-card" class:alive={!player.isDead} class:dead={player.isDead}>
+				<p>
+					<b>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</b>
+				</p>
+				<p><u>Status:</u> {player.isDead ? 'Dead 💀' : 'Alive 😊'}</p>
+				<p><u>Last Move:</u> {playerMoveText(player)}</p>
+				<p><u>Reloads:</u></p>
+				<ul>
+					{#each playerReloadTextArray(player) as reload}
+						<li>{reload}</li>
+					{/each}
+				</ul>
+			</div>
+		{/each}
+	</div>
+	{#if game.players.filter((p) => p.id != currentPlayerId && !p.isDead).length}
+		<h3>Others (Alive)</h3>
+		<div class="player-cards">
+			{#each game.players.filter((p) => p.id != currentPlayerId && !p.isDead) as player}
+				<div class="player-card alive">
+					<p>
+						<b>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</b>
+						{#if isHost}
+							<button
+								class="remove-button"
+								on:click={() =>
+									ws.send(JSON.stringify({ type: 'kick-out', payload: { playerId: player.id } }))}
+								>Remove</button
+							>
+						{/if}
+					</p>
+					<p><u>Status:</u> Alive 😊</p>
+					<p><u>Last Move:</u> {playerMoveText(player)}</p>
+					<p><u>Reloads:</u></p>
+					<ul>
+						{#each playerReloadTextArray(player) as reload}
+							<li>{reload}</li>
+						{/each}
+					</ul>
+				</div>
+			{/each}
+		</div>
+	{/if}
+	{#if game.players.filter((p) => p.id != currentPlayerId && p.isDead).length}
+		<h3>Others (Dead)</h3>
+		<div class="player-cards">
+			{#each game.players.filter((p) => p.id != currentPlayerId && p.isDead) as player}
+				<div class="player-card dead">
+					<p>
+						<b>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</b>
+						{#if isHost}
+							<button
+								class="remove-button"
+								on:click={() =>
+									ws.send(JSON.stringify({ type: 'kick-out', payload: { playerId: player.id } }))}
+								>Remove</button
+							>
+						{/if}
+					</p>
+					<p><u>Status:</u> Dead 💀</p>
+					<p><u>Last Move:</u> {playerMoveText(player)}</p>
+					<p><u>Reloads:</u></p>
+					<ul>
+						{#each playerReloadTextArray(player) as reload}
+							<li>{reload}</li>
+						{/each}
+					</ul>
+				</div>
+			{/each}
+		</div>
+	{/if}
 {:else if status === 'moved'}
 	<h2>Waiting...</h2>
 	<p>
@@ -775,6 +864,14 @@
 				<div class="player-card" class:alive={!player.isDead} class:dead={player.isDead}>
 					<p>
 						<b>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</b>
+						{#if isHost}
+							<button
+								class="remove-button"
+								on:click={() =>
+									ws.send(JSON.stringify({ type: 'kick-out', payload: { playerId: player.id } }))}
+								>Remove</button
+							>
+						{/if}
 					</p>
 					<p><u>Status:</u> {player.isDead ? 'Dead 💀' : 'Alive 😊'}</p>
 					<p><u>Move:</u> {playerMoveText(player)}</p>
@@ -795,6 +892,14 @@
 				<div class="player-card" class:alive={!player.isDead}>
 					<p>
 						<b>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</b>
+						{#if isHost}
+							<button
+								class="remove-button"
+								on:click={() =>
+									ws.send(JSON.stringify({ type: 'kick-out', payload: { playerId: player.id } }))}
+								>Remove</button
+							>
+						{/if}
 					</p>
 					<p><u>Status:</u> {player.isDead ? 'Dead 💀' : 'Alive 😊'}</p>
 					<p><u>Reloads:</u></p>
