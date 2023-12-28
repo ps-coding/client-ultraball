@@ -277,7 +277,6 @@
 				class="has-clear-button"
 				id="name"
 				type="text"
-				class:ierror={!name || name == ''}
 				bind:value={name}
 			/><button
 				class="clear-button"
@@ -298,12 +297,13 @@
 					min="1"
 					type="number"
 					inputmode="numeric"
-					class:ierror={!gameId ||
-						parseInt(gameId) < 1 ||
-						bigError == 'Game Not Found' ||
-						bigError == 'Game Full'}
+					class:ierror={gameId &&
+						(parseInt(gameId) < 1 || bigError == 'Game Not Found' || bigError == 'Game Full')}
 					bind:value={gameId}
 					on:keydown={(e) => {
+						if ((bigError = 'Game Not Found' || bigError == 'Game Full')) {
+							bigError = '';
+						}
 						if (e.key == 'Enter') {
 							if (name && name != '' && gameId && parseInt(gameId) > 0)
 								ws.send(
@@ -378,7 +378,7 @@
 					type="number"
 					inputmode="numeric"
 					min={lastPlayerKeepsPlaying ? 1 : 2}
-					class:ierror={!cap || parseInt(cap) < (lastPlayerKeepsPlaying ? 1 : 2)}
+					class:ierror={cap && parseInt(cap) < (lastPlayerKeepsPlaying ? 1 : 2)}
 					bind:value={cap}
 					on:change={() => {
 						if (parseInt(cap) <= 1) {
@@ -465,7 +465,11 @@
 			You're playing solo! Add as many bots as you want and then start.
 		{/if}
 	</h3>
-	<p>Players:</p>
+	<p>
+		Players ({game.cap == 1
+			? 'solo'
+			: game.players.filter((p) => !p.bot).length.toString() + ' of ' + game.cap.toString()}):
+	</p>
 	{#if isHost}
 		<button
 			on:click={() => {
