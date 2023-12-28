@@ -38,6 +38,7 @@
 		};
 
 		ws.onclose = () => {
+			ws.close();
 			status = 'results';
 		};
 
@@ -98,10 +99,12 @@
 					status = 'update';
 					break;
 				case 'game-ended':
+					ws.close();
 					status = 'results';
 					break;
 				case 'player-removed':
 					if (payload.removedPlayerId == currentPlayerId) {
+						ws.close();
 						status = 'results';
 					} else {
 						against = game.players.filter((p) => !p.isDead && p.id != currentPlayerId)[0].id;
@@ -268,9 +271,11 @@
 	{:else if !isHost && game?.gameStarted && !game?.gameEnded}
 		<button
 			class="remove-button"
-			on:click={() =>
-				ws.send(JSON.stringify({ type: 'leave-game', payload: { playerId: currentPlayerId } }))}
-			>Leave Game</button
+			on:click={() => {
+				ws.send(JSON.stringify({ type: 'leave-game', payload: { playerId: currentPlayerId } }));
+				ws.close();
+				status = 'results';
+			}}>Leave Game</button
 		>
 	{/if}
 </h1>
