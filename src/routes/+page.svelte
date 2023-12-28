@@ -141,6 +141,7 @@
 		id: number;
 		host: string;
 		players: number;
+		bots: number;
 		cap: number;
 		lastPlayerKeepsPlaying: boolean;
 	}[] = [];
@@ -361,10 +362,16 @@
 					<ul>
 						{#each searchedGames as game}
 							<li>
-								{game.id} (by {game.host}): {game.players} joined of {game.cap} maximum players
-								{game.lastPlayerKeepsPlaying
-									? '(last player keeps playing against bots)'
-									: '(last player automatically wins)'}
+								{game.id} by {game.host}
+								<br />
+								{game.players} joined of {game.cap} maximum players
+								<br />
+								{game.bots}
+								{game.bots != 1 ? 'bots' : 'bot'}
+								Mode: {game.lastPlayerKeepsPlaying
+									? 'Last player keeps playing against bots'
+									: 'Last player automatically wins'}
+								<br />
 								<button
 									on:click={() => {
 										gameId = game.id.toString();
