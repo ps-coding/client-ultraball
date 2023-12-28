@@ -343,15 +343,14 @@
 							);
 					}}>Join</button
 				>
-				<br />
-				<button
-					on:click={() => {
-						ws.send(JSON.stringify({ type: 'search-games' }));
-					}}>Search For Games</button
-				>
 				{#if searchedGames.length > 0}
 					<h3>
 						Public Games
+						<button
+							on:click={() => {
+								ws.send(JSON.stringify({ type: 'search-games' }));
+							}}>Refresh</button
+						>
 						<button
 							class="remove-button"
 							on:click={() => {
@@ -389,6 +388,13 @@
 							</li>
 						{/each}
 					</ul>
+				{:else}
+					<br />
+					<button
+						on:click={() => {
+							ws.send(JSON.stringify({ type: 'search-games' }));
+						}}>Search For Games</button
+					>
 				{/if}
 			</div>
 			<br />
