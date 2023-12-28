@@ -368,6 +368,7 @@
 								<br />
 								{game.bots}
 								{game.bots != 1 ? 'bots' : 'bot'}
+								<br />
 								Mode: {game.lastPlayerKeepsPlaying
 									? 'Last player keeps playing against bots'
 									: 'Last player automatically wins'}
