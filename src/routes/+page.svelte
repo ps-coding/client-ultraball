@@ -265,7 +265,7 @@
 		<button class="remove-button" on:click={() => ws.send(JSON.stringify({ type: 'end-game' }))}
 			>End Game</button
 		>
-	{:else}
+	{:else if !isHost && game?.gameStarted && !game?.gameEnded}
 		<button
 			class="remove-button"
 			on:click={() =>
