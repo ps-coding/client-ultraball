@@ -265,11 +265,11 @@
 			<i>{currentPlayerId}: {game.players.find((p) => p.id == currentPlayerId)?.name}</i>)</small
 		>
 	{/if}
-	{#if isHost && game?.gameStarted && !game?.gameEnded}
+	{#if isHost && game && !game.gameEnded && status != 'connecting' && status != 'connected' && status != 'results'}
 		<button class="remove-button" on:click={() => ws.send(JSON.stringify({ type: 'end-game' }))}
 			>End Game</button
 		>
-	{:else if !isHost && game?.gameStarted && !game?.gameEnded}
+	{:else if !isHost && game && !game.gameEnded && status != 'connecting' && status != 'connected' && status != 'results'}
 		<button
 			class="remove-button"
 			on:click={() => {
@@ -368,7 +368,6 @@
 								<br />
 								{game.bots}
 								{game.bots != 1 ? 'bots' : 'bot'}
-<br />
 								Mode: {game.lastPlayerKeepsPlaying
 									? 'Last player keeps playing against bots'
 									: 'Last player automatically wins'}
