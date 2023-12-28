@@ -44,28 +44,38 @@
 		ws.onmessage = (data) => {
 			const { type, payload } = JSONRetrocycle(JSON.parse(data.data));
 
+			if (type == 'available-games-found') {
+				searchedGames = payload.availableGames;
+				return;
+			}
+
 			game = payload.game;
 
-			if (window.location.pathname != '/?gameId=' + game.id.toString()) {
+			if (
+				game &&
+				window.location.pathname + window.location.search != '/?gameId=' + game.id.toString()
+			) {
 				history.pushState(null, '', '/?gameId=' + game.id.toString());
 			}
 
 			switch (type) {
 				case 'game-created':
 					isHost = true;
-					if (!currentPlayerId) {
-						currentPlayerId = game.host.id;
-					}
 					status = 'lobby';
 					break;
+				case 'player-id':
+					currentPlayerId = payload.playerId;
+					break;
 				case 'player-added':
-					if (!currentPlayerId) {
-						currentPlayerId = payload.newPlayerId;
-					}
 					status = 'lobby';
 					break;
 				case 'game-started':
 					status = 'move';
+					break;
+				case 'player-loaded':
+					if (payload.loadedPlayerId == currentPlayerId) {
+						status = 'moved';
+					}
 					break;
 				case 'game-updated':
 					status = 'update';
@@ -84,8 +94,15 @@
 		};
 	});
 
-	let status: 'connecting' | 'connected' | 'lobby' | 'move' | 'moved' | 'update' | 'results' =
-		'connecting';
+	let status:
+		| 'connecting'
+		| 'connected'
+		| 'lobby'
+		| 'move'
+		| 'processing'
+		| 'moved'
+		| 'update'
+		| 'results' = 'connecting';
 
 	let name = '';
 	let gameId = '';
@@ -99,6 +116,14 @@
 	let cap = '';
 
 	let lastPlayerKeepsPlaying = false;
+	let isPublic = false;
+	let searchedGames: {
+		id: number;
+		host: string;
+		players: number;
+		cap: number;
+		lastPlayerKeepsPlaying: boolean;
+	}[] = [];
 
 	let errorMessage = '';
 
@@ -281,6 +306,46 @@
 							);
 					}}>Join</button
 				>
+				<br />
+				<button
+					on:click={() => {
+						ws.send(JSON.stringify({ type: 'search-games' }));
+					}}>Search For Games</button
+				>
+				{#if searchedGames.length > 0}
+					<h3>
+						Public Games
+						<button
+							class="remove-button"
+							on:click={() => {
+								searchedGames = [];
+							}}>Clear</button
+						>
+					</h3>
+					<ul>
+						{#each searchedGames as game}
+							<li>
+								{game.id} (by {game.host}): {game.players} joined of {game.cap} maximum players
+								{game.lastPlayerKeepsPlaying
+									? '(last player keeps playing against bots)'
+									: '(last player automatically wins)'}
+								<button
+									on:click={() => {
+										gameId = game.id.toString();
+
+										if (name && name != '' && gameId && parseInt(gameId) > 0)
+											ws.send(
+												JSON.stringify({
+													type: 'join-game',
+													payload: { name, gameId: parseInt(gameId) }
+												})
+											);
+									}}>Join</button
+								>
+							</li>
+						{/each}
+					</ul>
+				{/if}
 			</div>
 			<br />
 			<div>
@@ -290,6 +355,11 @@
 					inputmode="numeric"
 					min={lastPlayerKeepsPlaying ? 1 : 2}
 					bind:value={cap}
+					on:change={() => {
+						if (parseInt(cap) <= 1) {
+							isPublic = false;
+						}
+					}}
 					on:keydown={(e) => {
 						if (e.key == 'Enter') {
 							if (
@@ -302,7 +372,7 @@
 								ws.send(
 									JSON.stringify({
 										type: 'create-game',
-										payload: { name, cap: parseInt(cap), lastPlayerKeepsPlaying }
+										payload: { name, cap: parseInt(cap), lastPlayerKeepsPlaying, isPublic }
 									})
 								);
 							}
@@ -326,7 +396,7 @@
 							ws.send(
 								JSON.stringify({
 									type: 'create-game',
-									payload: { name, cap: parseInt(cap), lastPlayerKeepsPlaying }
+									payload: { name, cap: parseInt(cap), lastPlayerKeepsPlaying, isPublic }
 								})
 							);
 						}
@@ -339,6 +409,14 @@
 					<br />
 					<small>(Needed for Solo)</small></label
 				>
+				<br />
+				<input
+					type="checkbox"
+					id="isPublic"
+					disabled={parseInt(cap) <= 1}
+					bind:checked={isPublic}
+				/>
+				<label for="isPublic">Public Game? {isPublic ? 'Yes' : 'No'}</label>
 			</div>
 		</div>
 	</div>
@@ -556,6 +634,9 @@
 					return;
 				}
 			}
+
+			status = 'processing';
+
 			ws.send(
 				JSON.stringify({
 					type: 'load-move',
@@ -570,12 +651,15 @@
 					}
 				})
 			);
-			status = 'moved';
+
 			selectedMove = moves[0];
 			errorMessage = '';
 			reloadSelection = { knife: 0, ball: 0, bazooka: 0, spiral: 0 };
 		}}>Submit</button
 	>
+{:else if status === 'processing'}
+	<h2>Processing your move...</h2>
+	<p>Your move is loading into the system. Please wait.</p>
 {:else if status === 'moved'}
 	<h2>Waiting...</h2>
 	<p>

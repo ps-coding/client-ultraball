@@ -7,6 +7,7 @@ export type Game = {
 	gameEnded: boolean;
 	playersMoved: number[];
 	lastPlayerKeepsPlaying: boolean;
+	isPublic: boolean;
 };
 
 export type Player = {
