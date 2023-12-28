@@ -88,6 +88,7 @@
 					status = 'lobby';
 					break;
 				case 'game-started':
+					against = game.players.filter((p) => !p.isDead && p.id != currentPlayerId)[0].id;
 					status = 'move';
 					break;
 				case 'player-loaded':
