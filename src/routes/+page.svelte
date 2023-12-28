@@ -46,15 +46,25 @@
 
 			if (type == 'error') {
 				bigError = payload.error;
+				if (searchedGames.length > 0 && (bigError == 'Game Not Found' || bigError == 'Game Full')) {
+					bigError += ' (refreshing public games...)';
+					ws.send(JSON.stringify({ type: 'search-games' }));
+				}
 				return;
-			} else {
-				bigError = '';
 			}
 
 			if (type == 'available-games-found') {
 				searchedGames = payload.availableGames;
+				if (bigError == 'Game Not Found (refreshing public games...)') {
+					bigError = 'Game Not Found';
+				}
+				if (bigError == 'Game Full (refreshing public games...)') {
+					bigError = 'Game Full';
+				}
 				return;
 			}
+
+			bigError = '';
 
 			game = payload.game;
 
@@ -266,6 +276,8 @@
 			<label for="name">Screen Name: </label><input
 				class="has-clear-button"
 				id="name"
+				type="text"
+				class:ierror={!name || name == ''}
 				bind:value={name}
 			/><button
 				class="clear-button"
@@ -286,6 +298,10 @@
 					min="1"
 					type="number"
 					inputmode="numeric"
+					class:ierror={!gameId ||
+						parseInt(gameId) < 1 ||
+						bigError == 'Game Not Found' ||
+						bigError == 'Game Full'}
 					bind:value={gameId}
 					on:keydown={(e) => {
 						if (e.key == 'Enter') {
@@ -362,6 +378,7 @@
 					type="number"
 					inputmode="numeric"
 					min={lastPlayerKeepsPlaying ? 1 : 2}
+					class:ierror={!cap || parseInt(cap) < (lastPlayerKeepsPlaying ? 1 : 2)}
 					bind:value={cap}
 					on:change={() => {
 						if (parseInt(cap) <= 1) {
@@ -850,7 +867,7 @@
 {/if}
 {#if bigError != ''}
 	<br />
-	<p class="error">{bigError}</p>
+	<p class="error">Error: {bigError}</p>
 {/if}
 
 <style>
@@ -957,6 +974,10 @@
 	input:focus {
 		border-radius: 0.75rem;
 		background-color: lightgreen;
+	}
+
+	input.ierror {
+		border: 1px solid crimson;
 	}
 
 	.has-clear-button {
