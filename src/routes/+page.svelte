@@ -107,9 +107,10 @@
 					if (payload.removedPlayerId == currentPlayerId) {
 						ws.close();
 						status = 'results';
-					} else {
-						against = game.players.filter((p) => !p.isDead && p.id != currentPlayerId)[0].id;
 					}
+					break;
+				case 'player-removed-update':
+					against = game.players.filter((p) => !p.isDead && p.id != currentPlayerId)[0].id;
 					break;
 			}
 		};
@@ -725,12 +726,14 @@
 	<h2>Processing your move...</h2>
 	<p>Your move is loading into the system. Please wait.</p>
 {:else if status === 'player-details'}
-	<h2>Player Details</h2>
-	<button
-		on:click={() => {
-			status = 'move';
-		}}>Back</button
-	>
+	<h2>
+		Player Details
+		<button
+			on:click={() => {
+				status = 'move';
+			}}>Back</button
+		>
+	</h2>
 	<h3>You</h3>
 	<div class="player-cards">
 		{#each game.players.filter((p) => p.id == currentPlayerId) as player}
