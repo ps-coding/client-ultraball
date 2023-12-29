@@ -510,7 +510,7 @@
 		{#each game.players as player}
 			<li>
 				{player.id}: {player.name}
-				{#if isHost}
+				{#if isHost && player.id != currentPlayerId}
 					<button
 						class="remove-button"
 						on:click={() =>
@@ -867,7 +867,7 @@
 				<div class="player-card" class:alive={!player.isDead} class:dead={player.isDead}>
 					<p>
 						<b>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</b>
-						{#if isHost}
+						{#if isHost && player.id != currentPlayerId}
 							<button
 								class="remove-button"
 								on:click={() =>
@@ -895,7 +895,7 @@
 				<div class="player-card" class:alive={!player.isDead}>
 					<p>
 						<b>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</b>
-						{#if isHost}
+						{#if isHost && player.id != currentPlayerId}
 							<button
 								class="remove-button"
 								on:click={() =>
