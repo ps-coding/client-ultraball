@@ -42,6 +42,12 @@
 		ws.onclose = () => {
 			ws.close();
 			status = 'results';
+			if (
+				bigError.substring(0, 15) != 'Removal Reason:' &&
+				bigError.substring(0, 11) != 'End Reason:'
+			) {
+				bigError = 'Disconnected';
+			}
 		};
 
 		ws.onmessage = (data) => {
@@ -104,11 +110,13 @@
 				case 'game-ended':
 					ws.close();
 					status = 'results';
+					bigError = 'End Reason: ' + payload.reason;
 					break;
 				case 'player-removed':
 					if (payload.removedPlayerId == currentPlayerId) {
 						ws.close();
 						status = 'results';
+						bigError = 'Removal Reason: ' + payload.reason;
 					}
 					break;
 				case 'player-removed-update':
@@ -281,6 +289,7 @@
 				ws.send(JSON.stringify({ type: 'leave-game', payload: { playerId: currentPlayerId } }));
 				ws.close();
 				status = 'results';
+				bigError = 'Removal Reason: left';
 			}}>Leave Game</button
 		>
 	{/if}
