@@ -1026,7 +1026,12 @@
 {/if}
 {#if bigError != ''}
 	<br />
-	<p class="error">Error: {bigError}</p>
+	<p class="error">
+		{#if status != 'results'}
+			<b>Error:</b>
+		{/if}
+		{bigError}
+	</p>
 {/if}
 
 <style>
