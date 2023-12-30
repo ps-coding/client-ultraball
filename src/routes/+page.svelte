@@ -26,9 +26,11 @@
 
 	onMount(() => {
 		if (gameId && gameId != '') {
-			history.pushState(null, '', '/?gameId=' + gameId);
+			if (window.location.pathname + window.location.search != '/?gameId=' + gameId.toString())
+				history.pushState(null, '', '/?gameId=' + gameId);
 		} else {
-			history.pushState(null, '', '/');
+			if (window.location.pathname + window.location.search != '/')
+				history.pushState(null, '', '/');
 		}
 
 		ws = new WebSocket('wss://server-ultraball.onrender.com');
@@ -331,8 +333,13 @@
 				<button
 					class="clear-button"
 					on:click={() => {
-						history.pushState(null, '', '/');
+						if (window.location.pathname + window.location.search != '/') {
+							history.pushState(null, '', '/');
+						}
 						gameId = '';
+						if ((bigError = 'Game Not Found' || bigError == 'Game Full')) {
+							bigError = '';
+						}
 					}}
 				>
 					✕
@@ -921,7 +928,9 @@
 		<p>Sorry, you were disconnected from the server.</p>
 		<button
 			on:click={() => {
-				history.pushState(null, '', '/');
+				if (window.location.pathname + window.location.search != '/') {
+					history.pushState(null, '', '/');
+				}
 				window.location.reload();
 			}}>Play Again</button
 		>
@@ -956,7 +965,9 @@
 		<br />
 		<button
 			on:click={() => {
-				history.pushState(null, '', '/');
+				if (window.location.pathname + window.location.search != '/') {
+					history.pushState(null, '', '/');
+				}
 				window.location.reload();
 			}}>Play Again</button
 		>
