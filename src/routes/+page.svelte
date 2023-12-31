@@ -920,8 +920,8 @@
 			}}>Make Next Move</button
 		>
 	{/if}
-	<br />
 	{#if pairings(game).length > 0}
+		<br />
 		<h4>Move Pairings</h4>
 		<ul>
 			{#each pairings(game) as { player, against, againstEachOther }}
@@ -1080,6 +1080,57 @@
 		<br />
 		<br />
 		<h4>Final Update Details</h4>
+		{#if pairings(game).length > 0}
+			<h5>Move Pairings</h5>
+			<ul>
+				{#each pairings(game) as { player, against, againstEachOther }}
+					<li>
+						<span class:alive-text={!player.isDead} class:dead-text={player.isDead}
+							>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</span
+						>
+						{#if player.move?.action.method == 'reload'}🔄{/if}
+						<span
+							style="display: inline-block;"
+							class:mirror-h={moves.find((m) => m.id == player.move?.action.id)?.iconFlipHorizontal}
+							class:mirror-v={moves.find((m) => m.id == player.move?.action.id)?.iconFlipVertical}
+							class:rotate-90={moves.find((m) => m.id == player.move?.action.id)?.rotateIcon == 90}
+							class:rotate-negative-90={moves.find((m) => m.id == player.move?.action.id)
+								?.rotateIcon == -90}>{moves.find((m) => m.id == player.move?.action.id)?.icon}</span
+						>
+						{#if against}
+							&nbsp; vs &nbsp;
+							{#if againstEachOther && against != 'everyone'}
+								{#if against.move?.action.method == 'reload'}🔄{/if}
+								<span
+									style="display: inline-block;"
+									class:mirror-h={!moves.find(
+										(m) => against != 'everyone' && m.id == against?.move?.action.id
+									)?.iconFlipHorizontal}
+									class:mirror-v={moves.find(
+										(m) => against != 'everyone' && m.id == against?.move?.action.id
+									)?.iconFlipVertical}
+									class:rotate-90={moves.find(
+										(m) => against != 'everyone' && m.id == against?.move?.action.id
+									)?.rotateIcon == -90}
+									class:rotate-negative-90={moves.find(
+										(m) => against != 'everyone' && m.id == against?.move?.action.id
+									)?.rotateIcon == 90}
+									>{moves.find((m) => against != 'everyone' && m.id == against?.move?.action.id)
+										?.icon}</span
+								>
+							{/if}
+							{#if against == 'everyone'}
+								Everyone
+							{:else}
+								<span class:alive-text={!against.isDead} class:dead-text={against.isDead}
+									>{against.id}: {against.name} ({against.bot ? '🤖' : '🧑'})</span
+								>
+							{/if}
+						{/if}
+					</li>
+				{/each}
+			</ul>
+		{/if}
 		{#if game.players.filter((p) => p.move).length}
 			<h5>Moved This Turn</h5>
 			<div class="player-cards">
