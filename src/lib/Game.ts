@@ -41,7 +41,11 @@ export const moves = [
 		method: 'offense',
 		needs: null,
 		beats: ['knife', 'spiralball'],
-		dir: 'one'
+		dir: 'one',
+		icon: '🔫',
+		iconFlipHorizontal: true,
+		iconFlipVertical: false,
+		rotateIcon: 0
 	},
 	{
 		id: 'knife',
@@ -49,7 +53,11 @@ export const moves = [
 		method: 'offense',
 		needs: { amount: 1, edition: 'knife' },
 		beats: [],
-		dir: 'one'
+		dir: 'one',
+		icon: '🔪',
+		iconFlipHorizontal: false,
+		iconFlipVertical: true,
+		rotateIcon: 0
 	},
 	{
 		id: 'waterball',
@@ -57,7 +65,11 @@ export const moves = [
 		method: 'offense',
 		needs: { amount: 1, edition: 'ball' },
 		beats: ['shotgun', 'knife', 'fireball'],
-		dir: 'one'
+		dir: 'one',
+		icon: '💧',
+		iconFlipHorizontal: false,
+		iconFlipVertical: false,
+		rotateIcon: 90
 	},
 	{
 		id: 'iceball',
@@ -65,7 +77,11 @@ export const moves = [
 		method: 'offense',
 		needs: { amount: 1, edition: 'ball' },
 		beats: ['shotgun', 'knife', 'waterball'],
-		dir: 'one'
+		dir: 'one',
+		icon: '❄️',
+		iconFlipHorizontal: false,
+		iconFlipVertical: false,
+		rotateIcon: 0
 	},
 	{
 		id: 'fireball',
@@ -73,7 +89,11 @@ export const moves = [
 		method: 'offense',
 		needs: { amount: 2, edition: 'ball' },
 		beats: ['shotgun', 'knife', 'iceball'],
-		dir: 'one'
+		dir: 'one',
+		icon: '🔥',
+		iconFlipHorizontal: false,
+		iconFlipVertical: false,
+		rotateIcon: -90
 	},
 	{
 		id: 'bazooka',
@@ -81,7 +101,11 @@ export const moves = [
 		method: 'offense',
 		needs: { amount: 3, edition: 'bazooka' },
 		beats: ['shotgun', 'knife', 'waterball', 'iceball', 'fireball'],
-		dir: 'one'
+		dir: 'one',
+		icon: '🚀',
+		iconFlipHorizontal: false,
+		iconFlipVertical: false,
+		rotateIcon: 0
 	},
 	{
 		id: 'spiralball',
@@ -89,7 +113,11 @@ export const moves = [
 		method: 'offense',
 		needs: { amount: 5, edition: 'spiral' },
 		beats: ['knife', 'waterball', 'iceball', 'fireball', 'bazooka'],
-		dir: 'one'
+		dir: 'one',
+		icon: '🌀',
+		iconFlipHorizontal: false,
+		iconFlipVertical: false,
+		rotateIcon: 0
 	},
 	{
 		id: 'deathsmoke',
@@ -97,7 +125,11 @@ export const moves = [
 		method: 'offense',
 		needs: { amount: 10, edition: 'any' },
 		beats: ['shotgun', 'knife', 'waterball', 'iceball', 'fireball', 'bazooka', 'spiralball'],
-		dir: 'all'
+		dir: 'all',
+		icon: '☠️',
+		iconFlipHorizontal: false,
+		iconFlipVertical: false,
+		rotateIcon: 0
 	},
 	{
 		id: 'shield',
@@ -105,7 +137,11 @@ export const moves = [
 		method: 'defense',
 		defends: ['shotgun', 'knife', 'waterball', 'iceball', 'fireball', 'bazooka'],
 		penetrates: ['spiralball', 'deathsmoke'],
-		dir: 'all'
+		dir: 'all',
+		icon: '🛡️',
+		iconFlipHorizontal: false,
+		iconFlipVertical: false,
+		rotateIcon: 0
 	},
 	{
 		id: 'mirror',
@@ -113,7 +149,11 @@ export const moves = [
 		method: 'defense-offense',
 		reflects: ['shotgun', 'waterball', 'iceball'],
 		penetrates: ['knife', 'fireball', 'bazooka', 'spiralball', 'deathsmoke'],
-		dir: 'one'
+		dir: 'one',
+		icon: '🪞',
+		iconFlipHorizontal: false,
+		iconFlipVertical: false,
+		rotateIcon: 0
 	},
 	{
 		id: 'mask',
@@ -121,7 +161,11 @@ export const moves = [
 		method: 'defense',
 		defends: ['deathsmoke'],
 		penetrates: ['shotgun', 'knife', 'waterball', 'iceball', 'fireball', 'bazooka', 'spiralball'],
-		dir: 'all'
+		dir: 'all',
+		icon: '😷',
+		iconFlipHorizontal: false,
+		iconFlipVertical: false,
+		rotateIcon: 0
 	},
 	{
 		id: 'r-knife',
@@ -129,7 +173,11 @@ export const moves = [
 		method: 'reload',
 		amount: 1,
 		dir: 'self',
-		for: ['knife', 'deathsmoke']
+		for: ['knife', 'deathsmoke'],
+		icon: '🔪',
+		iconFlipHorizontal: true,
+		iconFlipVertical: false,
+		rotateIcon: 0
 	},
 	{
 		id: 'r-ball',
@@ -137,7 +185,11 @@ export const moves = [
 		method: 'reload',
 		amount: 1,
 		dir: 'self',
-		for: ['waterball', 'iceball', 'fireball', 'deathsmoke']
+		for: ['waterball', 'iceball', 'fireball', 'deathsmoke'],
+		icon: '🔮',
+		iconFlipHorizontal: false,
+		iconFlipVertical: false,
+		rotateIcon: 0
 	},
 	{
 		id: 'r-bazooka',
@@ -145,7 +197,11 @@ export const moves = [
 		method: 'reload',
 		amount: 1,
 		dir: 'self',
-		for: ['bazooka', 'deathsmoke']
+		for: ['bazooka', 'deathsmoke'],
+		icon: '🚀',
+		iconFlipHorizontal: false,
+		iconFlipVertical: false,
+		rotateIcon: 0
 	},
 	{
 		id: 'r-spiral',
@@ -153,6 +209,10 @@ export const moves = [
 		method: 'reload',
 		amount: 1,
 		dir: 'self',
-		for: ['spiralball', 'deathsmoke']
+		for: ['spiralball', 'deathsmoke'],
+		icon: '🌀',
+		iconFlipHorizontal: false,
+		iconFlipVertical: false,
+		rotateIcon: 0
 	}
 ] as const;

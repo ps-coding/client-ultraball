@@ -180,7 +180,7 @@
 			if (player.move?.action.dir == 'one') {
 				return ' against ' + player.move?.direction?.name + ' (' + player.move?.direction?.id + ')';
 			} else if (player.move?.action.dir == 'self') {
-				return ' on itself';
+				return '';
 			} else {
 				return ' against everyone';
 			}
@@ -250,6 +250,52 @@
 		} else {
 			return move.title + ' (' + move.needs.amount + ')';
 		}
+	}
+
+	function pairings(
+		game: Game
+	): { player: Player; against: Player | undefined | 'everyone'; againstEachOther: boolean }[] {
+		const players = game.players.filter(
+			(p) => p.move && (p.move.action.method == 'offense' || p.move.action.method == 'reload')
+		);
+		const pairings: {
+			player: Player;
+			against: Player | undefined | 'everyone';
+			againstEachOther: boolean;
+		}[] = [];
+		const used: number[] = [];
+
+		for (const player of players) {
+			if (used.includes(player.id)) continue;
+			used.push(player.id);
+			if (player.move?.action.dir == 'one') {
+				const against = player.move.direction;
+				if (against) {
+					if (against.move?.direction?.id == player.id) {
+						used.push(against.id);
+						pairings.push({ player, against, againstEachOther: true });
+					} else if (against.move?.action.dir == 'all') {
+						pairings.push({
+							player,
+							against,
+							againstEachOther: true
+						});
+					} else {
+						pairings.push({ player, against, againstEachOther: false });
+					}
+				}
+			} else if (player.move?.action.dir == 'self') {
+				pairings.push({ player, against: undefined, againstEachOther: false });
+			} else if (player.move?.action.dir == 'all') {
+				pairings.push({
+					player,
+					against: 'everyone',
+					againstEachOther: false
+				});
+			}
+		}
+
+		return pairings;
 	}
 </script>
 
@@ -875,6 +921,57 @@
 		>
 	{/if}
 	<br />
+	{#if pairings(game).length > 0}
+		<h4>Move Pairings</h4>
+		<ul>
+			{#each pairings(game) as { player, against, againstEachOther }}
+				<li>
+					<span class:alive-text={!player.isDead} class:dead-text={player.isDead}
+						>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</span
+					>
+					{#if player.move?.action.method == 'reload'}🔄{/if}
+					<span
+						style="display: inline-block;"
+						class:mirror-h={moves.find((m) => m.id == player.move?.action.id)?.iconFlipHorizontal}
+						class:mirror-v={moves.find((m) => m.id == player.move?.action.id)?.iconFlipVertical}
+						class:rotate-90={moves.find((m) => m.id == player.move?.action.id)?.rotateIcon == 90}
+						class:rotate-negative-90={moves.find((m) => m.id == player.move?.action.id)
+							?.rotateIcon == -90}>{moves.find((m) => m.id == player.move?.action.id)?.icon}</span
+					>
+					{#if against}
+						&nbsp; vs &nbsp;
+						{#if againstEachOther && against != 'everyone'}
+							{#if against.move?.action.method == 'reload'}🔄{/if}
+							<span
+								style="display: inline-block;"
+								class:mirror-h={!moves.find(
+									(m) => against != 'everyone' && m.id == against?.move?.action.id
+								)?.iconFlipHorizontal}
+								class:mirror-v={moves.find(
+									(m) => against != 'everyone' && m.id == against?.move?.action.id
+								)?.iconFlipVertical}
+								class:rotate-90={moves.find(
+									(m) => against != 'everyone' && m.id == against?.move?.action.id
+								)?.rotateIcon == -90}
+								class:rotate-negative-90={moves.find(
+									(m) => against != 'everyone' && m.id == against?.move?.action.id
+								)?.rotateIcon == 90}
+								>{moves.find((m) => against != 'everyone' && m.id == against?.move?.action.id)
+									?.icon}</span
+							>
+						{/if}
+						{#if against == 'everyone'}
+							Everyone
+						{:else}
+							<span class:alive-text={!against.isDead} class:dead-text={against.isDead}
+								>{against.id}: {against.name} ({against.bot ? '🤖' : '🧑'})</span
+							>
+						{/if}
+					{/if}
+				</li>
+			{/each}
+		</ul>
+	{/if}
 	<br />
 	{#if game.players.filter((p) => p.move).length}
 		<h4>Moved This Turn</h4>
@@ -1161,5 +1258,29 @@
 
 	.error {
 		color: crimson;
+	}
+
+	.alive-text {
+		color: green;
+	}
+
+	.dead-text {
+		color: red;
+	}
+
+	.mirror-h {
+		transform: scaleX(-1);
+	}
+
+	.mirror-v {
+		transform: scaleY(-1);
+	}
+
+	.rotate-90 {
+		transform: rotate(90deg);
+	}
+
+	.rotate-negative-90 {
+		transform: rotate(-90deg);
 	}
 </style>
