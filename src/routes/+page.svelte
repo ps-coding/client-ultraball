@@ -4,6 +4,7 @@
 	import { JSONRetrocycle } from '$lib/cycle';
 	import type { Game, Player } from '$lib/Game';
 	import { moves } from '$lib/Game';
+	import { text } from '@sveltejs/kit';
 
 	let ws: WebSocket;
 
@@ -317,7 +318,12 @@
 </svelte:head>
 
 <h1>
-	🌀 Ultra Ball
+	<a
+		class="title"
+		href="/about"
+		target={status == 'connecting' || status == 'connected' || status == 'results' ? '' : '_blank'}
+		title="Read About Ultra Ball">🌀 Ultra Ball</a
+	>
 	{#if currentPlayerId}
 		<small
 			>({isHost ? 'Host' : 'Player'} &mdash;
@@ -698,7 +704,7 @@
 		{#each reloadsArray(game.players.find((p) => p.id == currentPlayerId)) as reload}
 			{#if reload.amount > 0}
 				<label for="reload-{reload.edition}"
-					>{reload.edition.charAt(0).toUpperCase() + reload.edition.slice(1)}:</label
+					>{reload.edition.charAt(0).toUpperCase() + reload.edition.slice(1)} (have {reload.amount}):</label
 				>
 				<input
 					type="number"
@@ -1183,6 +1189,11 @@
 {/if}
 
 <style>
+	.title {
+		color: black;
+		text-decoration: none;
+	}
+
 	.player-cards {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
