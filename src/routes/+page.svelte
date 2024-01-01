@@ -4,7 +4,6 @@
 	import { JSONRetrocycle } from '$lib/cycle';
 	import type { Game, Player } from '$lib/Game';
 	import { moves } from '$lib/Game';
-	import { text } from '@sveltejs/kit';
 
 	let ws: WebSocket;
 
@@ -259,6 +258,22 @@
 		const players = game.players.filter(
 			(p) => p.move && (p.move.action.method == 'offense' || p.move.action.method == 'reload')
 		);
+		players.sort((a, b) => {
+			if (a.bot && !b.bot) {
+				return 1;
+			} else if (!a.bot && b.bot) {
+				return -1;
+			}
+
+			if (a.move?.action.method == 'reload' && b.move?.action.method == 'offense') {
+				return 1;
+			} else if (a.move?.action.method == 'offense' && b.move?.action.method == 'reload') {
+				return -1;
+			}
+
+			return 0;
+		});
+
 		const pairings: {
 			player: Player;
 			against: Player | undefined | 'everyone';
@@ -270,9 +285,9 @@
 			if (used.includes(player.id)) continue;
 			used.push(player.id);
 			if (player.move?.action.dir == 'one') {
-				const against = player.move.direction;
+				const against = player.move?.direction;
 				if (against) {
-					if (against.move?.direction?.id == player.id) {
+					if (against.move?.action.dir == 'one' && against.move?.direction?.id == player.id) {
 						used.push(against.id);
 						pairings.push({ player, against, againstEachOther: true });
 					} else if (against.move?.action.dir == 'all') {
@@ -295,6 +310,30 @@
 				});
 			}
 		}
+
+		pairings.sort((a, b) => {
+			if (
+				(a.player.id == currentPlayerId ||
+					a.against == 'everyone' ||
+					a.against?.id == currentPlayerId) &&
+				b.player.id != currentPlayerId &&
+				b.against != 'everyone' &&
+				b.against?.id != currentPlayerId
+			) {
+				return -1;
+			} else if (
+				(b.player.id == currentPlayerId ||
+					b.against == 'everyone' ||
+					b.against?.id == currentPlayerId) &&
+				a.player.id != currentPlayerId &&
+				a.against != 'everyone' &&
+				a.against?.id != currentPlayerId
+			) {
+				return 1;
+			}
+
+			return 0;
+		});
 
 		return pairings;
 	}
@@ -577,7 +616,7 @@
 	<ul>
 		{#each game.players as player}
 			<li>
-				{player.id}: {player.name}
+				{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})
 				{#if isHost && player.id != currentPlayerId}
 					<button
 						class="remove-button"
@@ -780,7 +819,7 @@
 							selectedMove.method == 'offense' && selectedMove.needs?.edition == 'any'
 								? reloadSelectionToArray()
 								: undefined,
-						direction: against
+						direction: selectedMove.dir == 'one' ? against : undefined
 					}
 				})
 			);
@@ -927,12 +966,14 @@
 		>
 	{/if}
 	{#if pairings(game).length > 0}
-		<br />
 		<h4>Move Pairings</h4>
 		<ul>
 			{#each pairings(game) as { player, against, againstEachOther }}
 				<li>
-					<span class:alive-text={!player.isDead} class:dead-text={player.isDead}
+					<span
+						class:alive-text={!player.isDead}
+						class:dead-text={player.isDead}
+						class:self-text={player.id == currentPlayerId}
 						>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</span
 					>
 					{#if player.move?.action.method == 'reload'}🔄{/if}
@@ -969,7 +1010,10 @@
 						{#if against == 'everyone'}
 							Everyone
 						{:else}
-							<span class:alive-text={!against.isDead} class:dead-text={against.isDead}
+							<span
+								class:alive-text={!against.isDead}
+								class:dead-text={against.isDead}
+								class:self-text={against.id == currentPlayerId}
 								>{against.id}: {against.name} ({against.bot ? '🤖' : '🧑'})</span
 							>
 						{/if}
@@ -1084,14 +1128,16 @@
 			}}>Play Again</button
 		>
 		<br />
-		<br />
 		<h4>Final Update Details</h4>
 		{#if pairings(game).length > 0}
 			<h5>Move Pairings</h5>
 			<ul>
 				{#each pairings(game) as { player, against, againstEachOther }}
 					<li>
-						<span class:alive-text={!player.isDead} class:dead-text={player.isDead}
+						<span
+							class:alive-text={!player.isDead}
+							class:dead-text={player.isDead}
+							class:self-text={player.id == currentPlayerId}
 							>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</span
 						>
 						{#if player.move?.action.method == 'reload'}🔄{/if}
@@ -1128,7 +1174,10 @@
 							{#if against == 'everyone'}
 								Everyone
 							{:else}
-								<span class:alive-text={!against.isDead} class:dead-text={against.isDead}
+								<span
+									class:alive-text={!against.isDead}
+									class:dead-text={against.isDead}
+									class:self-text={against.id == currentPlayerId}
 									>{against.id}: {against.name} ({against.bot ? '🤖' : '🧑'})</span
 								>
 							{/if}
@@ -1328,6 +1377,11 @@
 
 	.dead-text {
 		color: red;
+	}
+
+	.self-text {
+		font-weight: bold;
+		font-style: italic;
 	}
 
 	.mirror-h {
