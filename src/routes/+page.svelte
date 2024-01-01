@@ -616,7 +616,9 @@
 	<ul>
 		{#each game.players as player}
 			<li>
-				{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})
+				<span class:self-text-blue={player.id == currentPlayerId}
+					>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</span
+				>
 				{#if isHost && player.id != currentPlayerId}
 					<button
 						class="remove-button"
@@ -846,7 +848,11 @@
 		{#each game.players.filter((p) => p.id == currentPlayerId) as player}
 			<div class="player-card" class:alive={!player.isDead} class:dead={player.isDead}>
 				<p>
-					<b>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</b>
+					<b
+						><span class:self-text-blue={player.id == currentPlayerId}
+							>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</span
+						></b
+					>
 				</p>
 				<p><u>Status:</u> {player.isDead ? 'Dead 💀' : 'Alive 😊'}</p>
 				<p><u>Last Move:</u> {playerMoveText(player)}</p>
@@ -865,7 +871,11 @@
 			{#each game.players.filter((p) => p.id != currentPlayerId && !p.isDead) as player}
 				<div class="player-card alive">
 					<p>
-						<b>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</b>
+						<b
+							><span class:self-text-blue={player.id == currentPlayerId}
+								>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</span
+							></b
+						>
 						{#if isHost}
 							<button
 								class="remove-button"
@@ -893,7 +903,11 @@
 			{#each game.players.filter((p) => p.id != currentPlayerId && p.isDead) as player}
 				<div class="player-card dead">
 					<p>
-						<b>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</b>
+						<b
+							><span class:self-text-blue={player.id == currentPlayerId}
+								>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</span
+							></b
+						>
 						{#if isHost}
 							<button
 								class="remove-button"
@@ -930,7 +944,8 @@
 	<ul>
 		{#each game.players.filter((p) => !p.isDead && !p.bot) as player}
 			<li>
-				{player.id}: {player.name} ({game.playersMoved.includes(player.id) ? 'moved' : 'moving'})
+				<span class:self-text-blue={player.id == currentPlayerId}>{player.id}: {player.name}</span>
+				({game.playersMoved.includes(player.id) ? 'moved' : 'moving'})
 				{#if isHost}
 					<button
 						class="remove-button"
@@ -1029,7 +1044,11 @@
 			{#each game.players.filter((p) => p.move) as player}
 				<div class="player-card" class:alive={!player.isDead} class:dead={player.isDead}>
 					<p>
-						<b>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</b>
+						<b
+							><span class:self-text-blue={player.id == currentPlayerId}
+								>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</span
+							></b
+						>
 						{#if isHost && player.id != currentPlayerId}
 							<button
 								class="remove-button"
@@ -1057,7 +1076,11 @@
 			{#each game.players.filter((p) => !p.move) as player}
 				<div class="player-card" class:alive={!player.isDead}>
 					<p>
-						<b>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</b>
+						<b
+							><span class:self-text-blue={player.id == currentPlayerId}
+								>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</span
+							></b
+						>
 						{#if isHost && player.id != currentPlayerId}
 							<button
 								class="remove-button"
@@ -1103,7 +1126,11 @@
 				.filter((p) => !p.bot)
 				.sort( (p1, p2) => (!p1.isDead && p2.isDead ? -1 : !p2.isDead && p1.isDead ? 1 : 0) ) as player}
 				<li>
-					<b>{player.id}: {player.name}</b>
+					<b
+						><span class:self-text-blue={player.id == currentPlayerId}
+							>{player.id}: {player.name}</span
+						></b
+					>
 					{player.isDead ? 'died 💀 (lost)' : 'survived 😊 (won)'}
 				</li>
 			{/each}
@@ -1114,7 +1141,14 @@
 				{#each game.players
 					.filter((p) => p.bot)
 					.sort( (p1, p2) => (!p1.isDead && p2.isDead ? -1 : !p2.isDead && p1.isDead ? 1 : 0) ) as player}
-					<li><b>{player.id}: {player.name}</b> {player.isDead ? 'died 💀' : 'survived 😊'}</li>
+					<li>
+						<b
+							><span class:self-text-blue={player.id == currentPlayerId}
+								>{player.id}: {player.name}</span
+							></b
+						>
+						{player.isDead ? 'died 💀' : 'survived 😊'}
+					</li>
 				{/each}
 			</ul>
 		{/if}
@@ -1192,7 +1226,11 @@
 				{#each game.players.filter((p) => p.move) as player}
 					<div class="player-card">
 						<p>
-							<b>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</b>
+							<b
+								><span class:self-text-blue={player.id == currentPlayerId}
+									>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</span
+								></b
+							>
 						</p>
 						<p><u>Status:</u> {player.isDead ? 'Dead 💀' : 'Alive 😊'}</p>
 						<p><u>Move:</u> {playerMoveText(player)}</p>
@@ -1212,7 +1250,11 @@
 				{#each game.players.filter((p) => !p.move) as player}
 					<div class="player-card">
 						<p>
-							<b>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</b>
+							<b
+								><span class:self-text-blue={player.id == currentPlayerId}
+									>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</span
+								></b
+							>
 						</p>
 						<p><u>Status:</u> {player.isDead ? 'Dead 💀' : 'Alive 😊'}</p>
 						<p><u>Reloads:</u></p>
@@ -1382,6 +1424,12 @@
 	.self-text {
 		font-weight: bold;
 		font-style: italic;
+	}
+
+	.self-text-blue {
+		font-weight: bold;
+		font-style: italic;
+		color: blue;
 	}
 
 	.mirror-h {
