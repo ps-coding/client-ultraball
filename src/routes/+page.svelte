@@ -1441,10 +1441,10 @@
 	}
 
 	.rotate-90 {
-		transform: rotate(90deg);
+		transform: rotate(-90deg);
 	}
 
 	.rotate-negative-90 {
-		transform: rotate(-90deg);
+		transform: rotate(90deg);
 	}
 </style>
