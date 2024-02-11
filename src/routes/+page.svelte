@@ -649,8 +649,8 @@
 			}}>See Player Details</button
 		>
 	</h2>
-	Move:
-	<select bind:value={selectedMove}>
+	<label for="select-move">Move:</label>
+	<select id="select-move" bind:value={selectedMove}>
 		{#each moves as move}
 			{#if !((move.method == 'offense' && move.needs?.edition != 'any' && !hasEnoughReloads( game.players.find((p) => p.id == currentPlayerId), move.needs )) || (move.method == 'offense' && move.needs?.edition == 'any' && !hasEnoughAnyReloads( game.players.find((p) => p.id == currentPlayerId), move.needs.amount )))}
 				<option value={move}>{move.title} ({move.method})</option>
@@ -729,8 +729,8 @@
 	{/if}
 	{#if selectedMove && selectedMove.dir === 'one'}
 		<br />
-		Against:
-		<select bind:value={against}>
+		<label for="select-against">Against:</label>
+		<select id="select-against" bind:value={against}>
 			{#each game.players.filter((p) => !p.isDead) as player}
 				{#if player.id !== currentPlayerId}
 					<option value={player.id}>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</option>
