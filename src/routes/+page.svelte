@@ -1611,7 +1611,6 @@
 
 	.pairingCenter {
 		text-align: center;
-		font-weight: bold;
 		margin-top: 4rem;
 		font-size: 2vw;
 	}
