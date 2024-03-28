@@ -1072,10 +1072,10 @@
 {:else if status === 'update'}
 	<h2>All Moves Executed: Update</h2>
 	{#if game.players.find((p) => p.id == currentPlayerId)?.isDead}
-		<h3>💀 You died!</h3>
+		<h2>💀 You died!</h2>
 		<p>You can spectate the game from here.</p>
 	{:else}
-		<h3>😊 You survived!</h3>
+		<h2>😊 You survived!</h2>
 		<button
 			on:click={() => {
 				against = game.players.filter((p) => !p.isDead && p.id != currentPlayerId)[0].id;
@@ -1227,11 +1227,11 @@
 		>
 	{:else}
 		<h2>Results ({game.gameEnded ? 'Game Over' : 'Disconnected'})</h2>
-		<h3>
+		<h2>
 			You {game.players.find((p) => p.id == currentPlayerId)?.isDead
 				? 'died 💀 (lost)!'
 				: 'survived 😊 (won)!'}
-		</h3>
+		</h2>
 		<h4>All Players (🧑) Summary</h4>
 		<ul>
 			{#each game.players
