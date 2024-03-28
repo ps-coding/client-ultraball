@@ -105,10 +105,12 @@
 					}
 					break;
 				case 'game-updated':
-					status = 'update';
+					status = 'pairings';
+					showPairings();
 					break;
 				case 'game-ended':
 					ws.close();
+					stopPairings();
 					status = 'results';
 					bigError = 'End Reason: ' + payload.reason;
 					break;
@@ -134,6 +136,7 @@
 		| 'processing'
 		| 'player-details'
 		| 'moved'
+		| 'pairings'
 		| 'update'
 		| 'results' = 'connecting';
 
@@ -161,6 +164,8 @@
 
 	let errorMessage = '';
 	let bigError = '';
+
+	let showCards = false;
 
 	function playerMoveText(player: Player) {
 		if (player.move) {
@@ -336,6 +341,41 @@
 		});
 
 		return pairings;
+	}
+
+	let currentPairingIndex: number = 0;
+	let pairingsInterval: number;
+	let pairing: ReturnType<typeof pairings>[number] | undefined;
+
+	function showPairings() {
+		currentPairingIndex = 0;
+
+		if (currentPairingIndex >= pairings(game).length) {
+			status = 'update';
+			stopPairings();
+			return;
+		}
+
+		pairing = pairings(game)[currentPairingIndex];
+
+		currentPairingIndex++;
+
+		pairingsInterval = setInterval(() => {
+			if (currentPairingIndex >= pairings(game).length) {
+				status = 'update';
+				stopPairings();
+				return;
+			}
+
+			pairing = pairings(game)[currentPairingIndex];
+
+			currentPairingIndex++;
+		}, 1000);
+	}
+
+	function stopPairings() {
+		clearInterval(pairingsInterval);
+		status = 'update';
 	}
 </script>
 
@@ -519,6 +559,7 @@
 					on:change={() => {
 						if (parseInt(cap) <= 1) {
 							isPublic = false;
+							lastPlayerKeepsPlaying = true;
 						}
 					}}
 					on:keydown={(e) => {
@@ -653,7 +694,9 @@
 	<select id="select-move" bind:value={selectedMove}>
 		{#each moves as move}
 			{#if !((move.method == 'offense' && move.needs?.edition != 'any' && !hasEnoughReloads( game.players.find((p) => p.id == currentPlayerId), move.needs )) || (move.method == 'offense' && move.needs?.edition == 'any' && !hasEnoughAnyReloads( game.players.find((p) => p.id == currentPlayerId), move.needs.amount )))}
-				<option value={move}>{move.title} ({move.method})</option>
+				<option value={move}
+					>{move.method == 'reload' ? '🔄' : ''}{move.icon} {move.title} ({move.method})</option
+				>
 			{/if}
 		{/each}
 	</select>
@@ -965,6 +1008,67 @@
 			}}>Skip</button
 		>
 	{/if}
+{:else if status === 'pairings'}
+	<button on:click={stopPairings}>Skip »</button>
+	{#if pairing}
+		<p class="pairingCenter">
+			<span
+				class:alive-text={!pairing.player.isDead}
+				class:dead-text={pairing.player.isDead}
+				class:self-text={pairing.player.id == currentPlayerId}
+				>{pairing.player.id}: {pairing.player.name} ({pairing.player.bot ? '🤖' : '🧑'})</span
+			>
+			{#if pairing.player.move?.action.method == 'reload'}🔄{/if}
+			<span
+				style="display: inline-block;"
+				class:mirror-h={moves.find((m) => m.id == pairing?.player.move?.action.id)
+					?.iconFlipHorizontal}
+				class:mirror-v={moves.find((m) => m.id == pairing?.player.move?.action.id)
+					?.iconFlipVertical}
+				class:rotate-90={moves.find((m) => m.id == pairing?.player.move?.action.id)?.rotateIcon ==
+					90}
+				class:rotate-negative-90={moves.find((m) => m.id == pairing?.player.move?.action.id)
+					?.rotateIcon == -90}
+				>{moves.find((m) => m.id == pairing?.player.move?.action.id)?.icon}</span
+			>
+			{#if pairing.against}
+				&nbsp; vs &nbsp;
+				{#if pairing.againstEachOther && pairing.against != 'everyone'}
+					{#if pairing.against.move?.action.method == 'reload'}🔄{/if}
+					<span
+						style="display: inline-block;"
+						class:mirror-h={!moves.find(
+							(m) => pairing?.against != 'everyone' && m.id == pairing?.against?.move?.action.id
+						)?.iconFlipHorizontal}
+						class:mirror-v={moves.find(
+							(m) => pairing?.against != 'everyone' && m.id == pairing?.against?.move?.action.id
+						)?.iconFlipVertical}
+						class:rotate-90={moves.find(
+							(m) => pairing?.against != 'everyone' && m.id == pairing?.against?.move?.action.id
+						)?.rotateIcon == 90}
+						class:rotate-negative-90={moves.find(
+							(m) => pairing?.against != 'everyone' && m.id == pairing?.against?.move?.action.id
+						)?.rotateIcon == -90}
+						>{moves.find(
+							(m) => pairing?.against != 'everyone' && m.id == pairing?.against?.move?.action.id
+						)?.icon}</span
+					>
+				{/if}
+				{#if pairing?.against == 'everyone'}
+					Everyone
+				{:else}
+					<span
+						class:alive-text={!pairing.against.isDead}
+						class:dead-text={pairing.against.isDead}
+						class:self-text={pairing.against.id == currentPlayerId}
+						>{pairing.against.id}: {pairing.against.name} ({pairing.against.bot
+							? '🤖'
+							: '🧑'})</span
+					>
+				{/if}
+			{/if}
+		</p>
+	{/if}
 {:else if status === 'update'}
 	<h2>All Moves Executed: Update</h2>
 	{#if game.players.find((p) => p.id == currentPlayerId)?.isDead}
@@ -1014,10 +1118,10 @@
 								)?.iconFlipVertical}
 								class:rotate-90={moves.find(
 									(m) => against != 'everyone' && m.id == against?.move?.action.id
-								)?.rotateIcon == -90}
+								)?.rotateIcon == 90}
 								class:rotate-negative-90={moves.find(
 									(m) => against != 'everyone' && m.id == against?.move?.action.id
-								)?.rotateIcon == 90}
+								)?.rotateIcon == -90}
 								>{moves.find((m) => against != 'everyone' && m.id == against?.move?.action.id)
 									?.icon}</span
 							>
@@ -1038,68 +1142,76 @@
 		</ul>
 	{/if}
 	<br />
-	{#if game.players.filter((p) => p.move).length}
-		<h4>Moved This Turn</h4>
-		<div class="player-cards">
-			{#each game.players.filter((p) => p.move) as player}
-				<div class="player-card" class:alive={!player.isDead} class:dead={player.isDead}>
-					<p>
-						<b
-							><span class:self-text-blue={player.id == currentPlayerId}
-								>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</span
-							></b
-						>
-						{#if isHost && player.id != currentPlayerId}
-							<button
-								class="remove-button"
-								on:click={() =>
-									ws.send(JSON.stringify({ type: 'kick-out', payload: { playerId: player.id } }))}
-								>Remove</button
+	<button
+		class="hide-show"
+		on:click={() => {
+			showCards = !showCards;
+		}}>{showCards ? 'Hide' : 'Show'} Cards</button
+	>
+	{#if showCards}
+		{#if game.players.filter((p) => p.move).length}
+			<h4>Moved This Turn</h4>
+			<div class="player-cards">
+				{#each game.players.filter((p) => p.move) as player}
+					<div class="player-card" class:alive={!player.isDead} class:dead={player.isDead}>
+						<p>
+							<b
+								><span class:self-text-blue={player.id == currentPlayerId}
+									>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</span
+								></b
 							>
-						{/if}
-					</p>
-					<p><u>Status:</u> {player.isDead ? 'Dead 💀' : 'Alive 😊'}</p>
-					<p><u>Move:</u> {playerMoveText(player)}</p>
-					<p><u>Reloads:</u></p>
-					<ul>
-						{#each playerReloadTextArray(player) as reload}
-							<li>{reload}</li>
-						{/each}
-					</ul>
-				</div>
-			{/each}
-		</div>
-	{/if}
-	{#if game.players.filter((p) => !p.move).length}
-		<h4>Did Not Move (Dead or Skipped)</h4>
-		<div class="player-cards">
-			{#each game.players.filter((p) => !p.move) as player}
-				<div class="player-card" class:alive={!player.isDead}>
-					<p>
-						<b
-							><span class:self-text-blue={player.id == currentPlayerId}
-								>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</span
-							></b
-						>
-						{#if isHost && player.id != currentPlayerId}
-							<button
-								class="remove-button"
-								on:click={() =>
-									ws.send(JSON.stringify({ type: 'kick-out', payload: { playerId: player.id } }))}
-								>Remove</button
+							{#if isHost && player.id != currentPlayerId}
+								<button
+									class="remove-button"
+									on:click={() =>
+										ws.send(JSON.stringify({ type: 'kick-out', payload: { playerId: player.id } }))}
+									>Remove</button
+								>
+							{/if}
+						</p>
+						<p><u>Status:</u> {player.isDead ? 'Dead 💀' : 'Alive 😊'}</p>
+						<p><u>Move:</u> {playerMoveText(player)}</p>
+						<p><u>Reloads:</u></p>
+						<ul>
+							{#each playerReloadTextArray(player) as reload}
+								<li>{reload}</li>
+							{/each}
+						</ul>
+					</div>
+				{/each}
+			</div>
+		{/if}
+		{#if game.players.filter((p) => !p.move).length}
+			<h4>Did Not Move (Dead or Skipped)</h4>
+			<div class="player-cards">
+				{#each game.players.filter((p) => !p.move) as player}
+					<div class="player-card" class:alive={!player.isDead}>
+						<p>
+							<b
+								><span class:self-text-blue={player.id == currentPlayerId}
+									>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</span
+								></b
 							>
-						{/if}
-					</p>
-					<p><u>Status:</u> {player.isDead ? 'Dead 💀' : 'Alive 😊'}</p>
-					<p><u>Reloads:</u></p>
-					<ul>
-						{#each playerReloadTextArray(player) as reload}
-							<li>{reload}</li>
-						{/each}
-					</ul>
-				</div>
-			{/each}
-		</div>
+							{#if isHost && player.id != currentPlayerId}
+								<button
+									class="remove-button"
+									on:click={() =>
+										ws.send(JSON.stringify({ type: 'kick-out', payload: { playerId: player.id } }))}
+									>Remove</button
+								>
+							{/if}
+						</p>
+						<p><u>Status:</u> {player.isDead ? 'Dead 💀' : 'Alive 😊'}</p>
+						<p><u>Reloads:</u></p>
+						<ul>
+							{#each playerReloadTextArray(player) as reload}
+								<li>{reload}</li>
+							{/each}
+						</ul>
+					</div>
+				{/each}
+			</div>
+		{/if}
 	{/if}
 {:else if status === 'results'}
 	{#if !game}
@@ -1197,10 +1309,10 @@
 									)?.iconFlipVertical}
 									class:rotate-90={moves.find(
 										(m) => against != 'everyone' && m.id == against?.move?.action.id
-									)?.rotateIcon == -90}
+									)?.rotateIcon == 90}
 									class:rotate-negative-90={moves.find(
 										(m) => against != 'everyone' && m.id == against?.move?.action.id
-									)?.rotateIcon == 90}
+									)?.rotateIcon == -90}
 									>{moves.find((m) => against != 'everyone' && m.id == against?.move?.action.id)
 										?.icon}</span
 								>
@@ -1220,52 +1332,61 @@
 				{/each}
 			</ul>
 		{/if}
-		{#if game.players.filter((p) => p.move).length}
-			<h5>Moved This Turn</h5>
-			<div class="player-cards">
-				{#each game.players.filter((p) => p.move) as player}
-					<div class="player-card">
-						<p>
-							<b
-								><span class:self-text-blue={player.id == currentPlayerId}
-									>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</span
-								></b
-							>
-						</p>
-						<p><u>Status:</u> {player.isDead ? 'Dead 💀' : 'Alive 😊'}</p>
-						<p><u>Move:</u> {playerMoveText(player)}</p>
-						<p><u>Reloads:</u></p>
-						<ul>
-							{#each playerReloadTextArray(player) as reload}
-								<li>{reload}</li>
-							{/each}
-						</ul>
-					</div>
-				{/each}
-			</div>
-		{/if}
-		{#if game.players.filter((p) => !p.move).length}
-			<h5>Did Not Move (Dead or Skipped)</h5>
-			<div class="player-cards">
-				{#each game.players.filter((p) => !p.move) as player}
-					<div class="player-card">
-						<p>
-							<b
-								><span class:self-text-blue={player.id == currentPlayerId}
-									>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</span
-								></b
-							>
-						</p>
-						<p><u>Status:</u> {player.isDead ? 'Dead 💀' : 'Alive 😊'}</p>
-						<p><u>Reloads:</u></p>
-						<ul>
-							{#each playerReloadTextArray(player) as reload}
-								<li>{reload}</li>
-							{/each}
-						</ul>
-					</div>
-				{/each}
-			</div>
+		<br />
+		<button
+			class="hide-show"
+			on:click={() => {
+				showCards = !showCards;
+			}}>{showCards ? 'Hide' : 'Show'} Cards</button
+		>
+		{#if showCards}
+			{#if game.players.filter((p) => p.move).length}
+				<h5>Moved This Turn</h5>
+				<div class="player-cards">
+					{#each game.players.filter((p) => p.move) as player}
+						<div class="player-card">
+							<p>
+								<b
+									><span class:self-text-blue={player.id == currentPlayerId}
+										>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</span
+									></b
+								>
+							</p>
+							<p><u>Status:</u> {player.isDead ? 'Dead 💀' : 'Alive 😊'}</p>
+							<p><u>Move:</u> {playerMoveText(player)}</p>
+							<p><u>Reloads:</u></p>
+							<ul>
+								{#each playerReloadTextArray(player) as reload}
+									<li>{reload}</li>
+								{/each}
+							</ul>
+						</div>
+					{/each}
+				</div>
+			{/if}
+			{#if game.players.filter((p) => !p.move).length}
+				<h5>Did Not Move (Dead or Skipped)</h5>
+				<div class="player-cards">
+					{#each game.players.filter((p) => !p.move) as player}
+						<div class="player-card">
+							<p>
+								<b
+									><span class:self-text-blue={player.id == currentPlayerId}
+										>{player.id}: {player.name} ({player.bot ? '🤖' : '🧑'})</span
+									></b
+								>
+							</p>
+							<p><u>Status:</u> {player.isDead ? 'Dead 💀' : 'Alive 😊'}</p>
+							<p><u>Reloads:</u></p>
+							<ul>
+								{#each playerReloadTextArray(player) as reload}
+									<li>{reload}</li>
+								{/each}
+							</ul>
+						</div>
+					{/each}
+				</div>
+			{/if}
 		{/if}
 	{/if}
 {/if}
@@ -1372,6 +1493,18 @@
 		border: none;
 	}
 
+	.hide-show,
+	.hide-show:hover,
+	.hide-show:focus,
+	.hide-show:active {
+		background-color: transparent;
+		color: blue;
+		font-weight: bold;
+		border: none;
+		padding: 0;
+		font-style: italic;
+	}
+
 	input {
 		border: 1px solid black;
 		border-radius: 1rem;
@@ -1446,5 +1579,40 @@
 
 	.rotate-negative-90 {
 		transform: rotate(90deg);
+	}
+
+	.mirror-h.mirror-v {
+		transform: scaleX(-1) scaleY(-1);
+	}
+
+	.mirror-h.rotate-90 {
+		transform: scaleX(-1) rotate(-90deg);
+	}
+
+	.mirror-h.rotate-negative-90 {
+		transform: scaleX(-1) rotate(90deg);
+	}
+
+	.mirror-v.rotate-90 {
+		transform: scaleY(-1) rotate(-90deg);
+	}
+
+	.mirror-v.rotate-negative-90 {
+		transform: scaleY(-1) rotate(90deg);
+	}
+
+	.mirror-h.mirror-v.rotate-90 {
+		transform: scaleX(-1) scaleY(-1) rotate(-90deg);
+	}
+
+	.mirror-h.mirror-v.rotate-negative-90 {
+		transform: scaleX(-1) scaleY(-1) rotate(90deg);
+	}
+
+	.pairingCenter {
+		text-align: center;
+		font-weight: bold;
+		margin-top: 4rem;
+		font-size: 2vw;
 	}
 </style>
