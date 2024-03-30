@@ -187,4 +187,10 @@
 		color: black;
 		text-decoration: none;
 	}
+
+	@media (prefers-color-scheme: dark) {
+		.title {
+			color: white;
+		}
+	}
 </style>

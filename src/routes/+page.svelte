@@ -1425,6 +1425,7 @@
 
 	.dead {
 		background-color: crimson;
+		color: white;
 	}
 
 	.move-card {
@@ -1613,5 +1614,125 @@
 		text-align: center;
 		margin-top: 4rem;
 		font-size: 3vw;
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.title {
+			color: white;
+		}
+
+		.player-card {
+			border: 1px solid white;
+			background-color: darkgray;
+			color: black;
+		}
+
+		.alive {
+			background-color: darkgreen;
+			color: white;
+		}
+
+		.dead {
+			background-color: darkred;
+			color: white;
+		}
+
+		.move-card {
+			border: 1px solid white;
+			background-color: #333;
+			color: white;
+		}
+
+		button {
+			border: 1px solid white;
+			background-color: lightblue;
+			color: black;
+		}
+
+		button:hover,
+		button:focus {
+			background-color: lightgreen;
+			color: black;
+		}
+
+		button:active {
+			background-color: yellowgreen;
+			color: black;
+		}
+
+		button:disabled {
+			background-color: gray;
+			color: whitesmoke;
+		}
+
+		.remove-button {
+			background-color: darkred;
+			color: white;
+		}
+
+		.remove-button:hover,
+		.remove-button:focus {
+			background-color: red;
+			color: black;
+		}
+
+		.remove-button:active {
+			background-color: orange;
+			color: black;
+		}
+
+		.clear-button,
+		.clear-button:hover,
+		.clear-button:focus,
+		.clear-button:active {
+			color: lightgray;
+		}
+
+		.hide-show,
+		.hide-show:hover,
+		.hide-show:focus,
+		.hide-show:active {
+			color: lightblue;
+		}
+
+		input {
+			border: 1px solid white;
+			background-color: lightblue;
+			color: black;
+		}
+
+		input:hover {
+			background-color: darkred;
+			color: white;
+		}
+
+		input:focus {
+			background-color: darkgreen;
+			color: white;
+		}
+
+		input.ierror {
+			border: 1px solid red;
+		}
+
+		.error {
+			color: crimson;
+		}
+
+		.self-text-blue {
+			color: lightblue;
+		}
+
+		.player-card .self-text-blue {
+			color: darkblue;
+		}
+
+		.player-card.alive .self-text-blue {
+			color: lightblue;
+		}
+
+		.player-card.dead .self-text-blue {
+			color: lightblue;
+		}
 	}
 </style>
