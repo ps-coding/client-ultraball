@@ -1685,7 +1685,7 @@
 		.clear-button:hover,
 		.clear-button:focus,
 		.clear-button:active {
-			color: lightgray;
+			color: black;
 		}
 
 		.hide-show,
