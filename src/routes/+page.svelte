@@ -151,7 +151,7 @@
 	}
 	let cap = '';
 
-	let lastPlayerKeepsPlaying = false;
+	let lastPlayerKeepsPlaying = true;
 	let isPublic = false;
 	let searchedGames: {
 		id: number;
@@ -559,7 +559,6 @@
 					on:change={() => {
 						if (parseInt(cap) <= 1) {
 							isPublic = false;
-							lastPlayerKeepsPlaying = true;
 						}
 					}}
 					on:keydown={(e) => {
