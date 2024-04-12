@@ -71,7 +71,7 @@
 	<u>Joining:</u> To join a game, simply use the link/code provided by the host or search for public
 	games. When you're ready, click join. That's all!
 </p>
-<h2>Game Play</h2>
+<h2>Gameplay</h2>
 <p>
 	Each round, you will be prompted to choose a move. You will only see moves that are available to
 	you, but if you click on a reload, you can see what moves it lets you unlock. The box on the
