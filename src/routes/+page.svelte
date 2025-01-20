@@ -427,6 +427,7 @@
 </h1>
 {#if status === 'connecting'}
 	<h2>Connecting...</h2>
+	<p>It may take a minute to connect if the server has spun down (for cost reasons). Subsequent connections from any device should be much faster.</p>
 {:else if status === 'connected'}
 	<h2>Create/Join a Game</h2>
 	<div>
