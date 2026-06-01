@@ -183,14 +183,131 @@
 </ul>
 
 <style>
-	.title {
-		color: black;
-		text-decoration: none;
+	h1,
+	h2 {
+		font-family: 'Orbitron', sans-serif;
+		letter-spacing: 1px;
 	}
 
-	@media (prefers-color-scheme: dark) {
-		.title {
-			color: white;
+	h1 {
+		text-align: center;
+		font-size: 2.8rem;
+		margin: 2rem 0 1rem;
+		color: #eaf6ff;
+	}
+
+	h2 {
+		margin-top: 2.5rem;
+		color: #9ad7ff;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+		padding-bottom: 0.4rem;
+	}
+
+	p,
+	li,
+	b {
+		font-family: 'Rajdhani', sans-serif;
+		color: rgba(255, 255, 255, 0.8);
+		line-height: 1.6;
+		font-size: 1.05rem;
+	}
+
+	/* Main layout container feel */
+	:global(body) {
+		margin: 0;
+		background: radial-gradient(circle at top, #141824, #0b0d12);
+	}
+
+	/* Link styling (Ultra Ball style) */
+	.title {
+		color: #9ad7ff;
+		text-decoration: none;
+		transition: 0.2s;
+	}
+
+	.title:hover {
+		color: #ffffff;
+		text-shadow: 0 0 10px rgba(154, 215, 255, 0.4);
+	}
+
+	/* Paragraph blocks become “sections” */
+	p {
+		max-width: 900px;
+		margin: 1rem auto;
+		padding: 1rem 1.2rem;
+		background: rgba(255, 255, 255, 0.03);
+		border: 1px solid rgba(255, 255, 255, 0.06);
+		border-radius: 14px;
+		backdrop-filter: blur(10px);
+	}
+
+	/* Lists become cards instead of raw bullets */
+	ul {
+		max-width: 900px;
+		margin: 1rem auto 2rem;
+		padding: 0;
+		list-style: none;
+		display: grid;
+		gap: 0.5rem;
+	}
+
+	li {
+		padding: 0.8rem 1rem;
+		background: rgba(255, 255, 255, 0.03);
+		border: 1px solid rgba(255, 255, 255, 0.06);
+		border-radius: 12px;
+		transition: 0.2s ease;
+	}
+
+	li:hover {
+		transform: translateY(-2px);
+		border-color: rgba(154, 215, 255, 0.3);
+	}
+
+	/* Move icons inside lists */
+	li span {
+		display: inline-flex;
+		margin: 0 0.2rem;
+		font-size: 1.2rem;
+	}
+
+	/* Strong emphasis */
+	u {
+		color: #ffffff;
+		text-decoration-color: #9ad7ff;
+	}
+
+	b {
+		display: block;
+		max-width: 900px;
+		margin: 1rem auto;
+		padding: 1rem 1.2rem;
+		border-left: 3px solid #9ad7ff;
+		background: rgba(154, 215, 255, 0.06);
+		border-radius: 10px;
+	}
+
+	/* Small italic chaos text */
+	small i {
+		color: rgba(255, 255, 255, 0.55);
+	}
+
+	/* Make sections feel spaced like a real app page */
+	h2 {
+		max-width: 900px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	/* Mobile responsiveness */
+	@media (max-width: 600px) {
+		h1 {
+			font-size: 2.2rem;
+		}
+
+		p,
+		li {
+			font-size: 1rem;
 		}
 	}
 </style>
