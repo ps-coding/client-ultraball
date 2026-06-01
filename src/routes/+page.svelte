@@ -18,15 +18,13 @@
 	};
 	let against: number;
 
-	// Move tab: 'offense' | 'defense' | 'reload'
 	let moveTab: 'offense' | 'defense' | 'reload' = 'offense';
 
-	// Max reloads needed per edition to unlock the most expensive move of that type
 	const reloadMaxes: Record<string, number> = {
-		knife: 1, // knife needs 1
-		ball: 2, // fireball needs 2 (most expensive ball move)
-		bazooka: 3, // bazooka needs 3
-		spiral: 5 // spiralball needs 5
+		knife: 1,
+		ball: 2,
+		bazooka: 3,
+		spiral: 5
 	};
 
 	onMount(() => {
@@ -165,6 +163,27 @@
 	let errorMessage = '';
 	let bigError = '';
 	let showCards = false;
+
+	async function shareGameLink() {
+		const url = window.location.href;
+
+		if (navigator.share) {
+			try {
+				await navigator.share({
+					title: 'Join my Ultra Ball game',
+					text: 'Join my game!',
+					url
+				});
+			} catch (err) {
+				// user probably cancelled
+				console.log('Share cancelled', err);
+			}
+		} else {
+			// fallback for desktop / unsupported browsers
+			await navigator.clipboard.writeText(url);
+			alert('Link copied to clipboard');
+		}
+	}
 
 	function getGameEndMessage(reason: string) {
 		switch (reason) {
@@ -724,6 +743,7 @@
 					on:click={() => navigator.clipboard.writeText(window.location.href)}
 					title="Copy link">🔗</button
 				>
+				<button class="btn-icon" on:click={shareGameLink} title="Share link">📤</button>
 			{:else}
 				<span class="muted">Solo mode — add bots then start!</span>
 			{/if}
