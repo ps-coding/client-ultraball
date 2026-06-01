@@ -900,6 +900,51 @@
 							{/each}
 						</div>
 					</div>
+					{#if game.players.filter((p) => p.id == against).length > 0}
+						{@const againstPlayer = game.players.find((p) => p.id == against)}
+						<div style="margin-top: 1rem;">
+							<div class="player-card {againstPlayer.isDead ? 'dead' : 'alive'}">
+								<div class="pc-header">
+									<span class="pc-avatar">{againstPlayer.bot ? '🤖' : '🧑'}</span>
+
+									<div class="pc-name-block">
+										<span class="pc-name">{againstPlayer.name}</span>
+										<span class="pc-id muted">#{againstPlayer.id}</span>
+									</div>
+
+									{#if againstPlayer.id === currentPlayerId}
+										<span class="self-badge">You</span>
+									{/if}
+								</div>
+
+								<div class="pc-status">
+									{againstPlayer.isDead ? '💀 Eliminated' : '😊 Alive'}
+								</div>
+
+								{#if againstPlayer.move}
+									<div class="pc-last-move">
+										🎲 {playerMoveText(againstPlayer)}
+									</div>
+								{/if}
+
+								<div class="pc-reloads">
+									{#each reloadsArray(againstPlayer) as reload}
+										<div class="pc-reload-row">
+											<span class="pc-reload-label">{reload.edition}</span>
+
+											<div class="pc-reload-pips">
+												{#each Array(Math.max(reload.amount, reloadMaxes[reload.edition])) as _, i}
+													<span class="pip" class:filled={i < reload.amount} />
+												{/each}
+											</div>
+
+											<span class="pc-reload-num">{reload.amount}</span>
+										</div>
+									{/each}
+								</div>
+							</div>
+						</div>
+					{/if}
 				{/if}
 
 				<!-- Reload resource selector for death smoke -->
