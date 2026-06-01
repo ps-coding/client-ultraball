@@ -167,6 +167,8 @@
 	async function shareGameLink() {
 		const url = window.location.href;
 
+		navigator.clipboard.writeText(url);
+
 		if (navigator.share) {
 			try {
 				await navigator.share({
@@ -737,11 +739,6 @@
 					class="btn-icon"
 					on:click={() => navigator.clipboard.writeText(game.id.toString())}
 					title="Copy code">📋</button
-				>
-				<button
-					class="btn-icon"
-					on:click={() => navigator.clipboard.writeText(window.location.href)}
-					title="Copy link">🔗</button
 				>
 				<button class="btn-icon" on:click={shareGameLink} title="Share link">📤</button>
 			{:else}
