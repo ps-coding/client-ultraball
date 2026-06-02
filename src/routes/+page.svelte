@@ -665,7 +665,8 @@
 					inputmode="numeric"
 					min={lastPlayerKeepsPlaying ? 1 : 2}
 					placeholder="e.g. 4"
-					class:ierror={cap && parseInt(cap) < (lastPlayerKeepsPlaying ? 1 : 2)}
+					class:ierror={(cap && parseInt(cap) < (lastPlayerKeepsPlaying ? 1 : 2)) ||
+						(cap && isPublic && parseInt(cap) < 2)}
 					bind:value={cap}
 					on:change={() => {
 						if (parseInt(cap) <= 1) {
@@ -1061,7 +1062,7 @@
 							{/if}
 							{#if selectedMove.deflected.length > 0}
 								<div class="move-stat">
-									<span>Deflected by</span><span
+									<span>Can't penetrate</span><span
 										>{selectedMove.deflected
 											.map((id) => moves.find((m) => m.id == id)?.title)
 											.join(', ')}</span
@@ -1069,7 +1070,7 @@
 								</div>
 							{:else}
 								<div class="move-stat">
-									<span>Deflected by</span><span class="muted">No defensive moves</span>
+									<span>Can't penetrate</span><span class="muted">No defensive moves</span>
 								</div>
 							{/if}
 						{:else if selectedMove.method == 'defense-offense'}
