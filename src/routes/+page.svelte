@@ -215,14 +215,7 @@
 
 	function playerMoveText(player: Player) {
 		if (player.move) {
-			return (
-				'Used ' +
-				player.move.action.title +
-				' (' +
-				player.move.action.method +
-				')' +
-				direction(player)
-			);
+			return 'Used ' + player.move.action.title + direction(player);
 		} else {
 			return 'Did nothing';
 		}
@@ -1030,7 +1023,46 @@
 								</div>
 							{:else}
 								<div class="move-stat">
-									<span>Beats</span><span class="muted">Nothing (but bypasses some defenses)</span>
+									<span>Beats</span><span class="muted">No offensive moves</span>
+								</div>
+							{/if}
+							{#if selectedMove.beaten.length > 0}
+								<div class="move-stat">
+									<span>Beaten by</span><span
+										>{selectedMove.beaten
+											.map((id) => moves.find((m) => m.id == id)?.title)
+											.join(', ')}</span
+									>
+								</div>
+							{:else}
+								<div class="move-stat">
+									<span>Beaten by</span><span class="muted">No offensive moves</span>
+								</div>
+							{/if}
+							{#if selectedMove.penetrates.length > 0}
+								<div class="move-stat">
+									<span>Penetrates</span><span
+										>{selectedMove.penetrates
+											.map((id) => moves.find((m) => m.id == id)?.title)
+											.join(', ')}</span
+									>
+								</div>
+							{:else}
+								<div class="move-stat">
+									<span>Penetrates</span><span class="muted">No defensive moves</span>
+								</div>
+							{/if}
+							{#if selectedMove.deflected.length > 0}
+								<div class="move-stat">
+									<span>Deflected by</span><span
+										>{selectedMove.deflected
+											.map((id) => moves.find((m) => m.id == id)?.title)
+											.join(', ')}</span
+									>
+								</div>
+							{:else}
+								<div class="move-stat">
+									<span>Deflected by</span><span class="muted">No defensive moves</span>
 								</div>
 							{/if}
 						{:else if selectedMove.method == 'defense-offense'}
