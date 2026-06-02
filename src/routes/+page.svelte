@@ -557,7 +557,7 @@
 						min="1"
 						type="number"
 						inputmode="numeric"
-						placeholder="e.g. 42"
+						placeholder="e.g. 424242"
 						class:ierror={gameId &&
 							(parseInt(gameId) < 1 || bigError == 'Game Not Found' || bigError == 'Game Full')}
 						bind:value={gameId}
@@ -668,7 +668,10 @@
 					class:ierror={cap && parseInt(cap) < (lastPlayerKeepsPlaying ? 1 : 2)}
 					bind:value={cap}
 					on:change={() => {
-						if (parseInt(cap) <= 1) isPublic = false;
+						if (parseInt(cap) <= 1) {
+							isPublic = false;
+							lastPlayerKeepsPlaying = true;
+						}
 					}}
 					on:keydown={(e) => {
 						if (
@@ -689,7 +692,11 @@
 
 				<div class="toggle-group">
 					<label class="toggle-label">
-						<input type="checkbox" bind:checked={lastPlayerKeepsPlaying} />
+						<input
+							type="checkbox"
+							disabled={parseInt(cap) <= 1}
+							bind:checked={lastPlayerKeepsPlaying}
+						/>
 						<span class="toggle-text"
 							>Last player battles bots <small>(needed for solo)</small></span
 						>
