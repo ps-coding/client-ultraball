@@ -1411,7 +1411,7 @@
 		{/if}
 
 		{#if pairings(game).length > 0}
-			<h4 class="section-label">This Round's Clashes</h4>
+			<h4 class="section-label">This Round's Clashes &amp; Reloads</h4>
 			<div class="pairing-list">
 				{#each pairings(game) as { player, against: ag, againstEachOther }}
 					<div
@@ -1474,10 +1474,10 @@
 		>
 
 		{#if showCards}
-			{#if game.players.filter((p) => !p.isDead && (p.bot || game.playersMoved.includes(p.id))).length}
+			{#if game.players.filter((p) => p.move).length}
 				<h4 class="section-label">Moved</h4>
 				<div class="player-cards">
-					{#each game.players.filter((p) => !p.isDead && (p.bot || game.playersMoved.includes(p.id))) as player}
+					{#each game.players.filter((p) => p.move) as player}
 						<div class="player-card" class:alive={!player.isDead} class:dead={player.isDead}>
 							<div class="pc-header">
 								<span class="pc-avatar">{player.bot ? '🤖' : '🧑'}</span>
@@ -1517,10 +1517,10 @@
 					{/each}
 				</div>
 			{/if}
-			{#if game.players.filter((p) => !p.isDead && !game.playersMoved.includes(p.id) && !p.bot).length}
+			{#if game.players.filter((p) => !p.move).length}
 				<h4 class="section-label muted">Did Not Move</h4>
 				<div class="player-cards">
-					{#each game.players.filter((p) => !p.isDead && !game.playersMoved.includes(p.id) && !p.bot) as player}
+					{#each game.players.filter((p) => !p.move) as player}
 						<div class="player-card" class:alive={!player.isDead} class:dead={player.isDead}>
 							<div class="pc-header">
 								<span class="pc-avatar">{player.bot ? '🤖' : '🧑'}</span>
@@ -1631,7 +1631,7 @@
 			<details class="final-details">
 				<summary>Final Round Details</summary>
 				{#if pairings(game).length > 0}
-					<h5 class="section-label">Clashes</h5>
+					<h5 class="section-label">Clashes &amp; Reloads</h5>
 					<div class="pairing-list">
 						{#each pairings(game) as { player, against: ag, againstEachOther }}
 							<div class="pairing-list-row">
