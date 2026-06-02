@@ -492,7 +492,7 @@
 		target={['connecting', 'connected', 'results'].includes(status) ? '' : '_blank'}
 		title="Read About Ultra Ball"
 	>
-		<span class="title-icon">🌀</span> Ultra Ball
+		<span class="title-icon">🌀</span> Ultra Ball <small class="about-small">(about)</small>
 	</a>
 
 	{#if currentPlayerId && game}
@@ -1800,8 +1800,17 @@
 		gap: 0.4rem;
 		text-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
 	}
+
 	.title-icon {
 		font-size: 1.6rem;
+	}
+
+	.about-small {
+		font-size: 0.7rem;
+	}
+
+	.about-small:hover {
+		text-decoration: underline;
 	}
 
 	/* ── Screen title ── */
