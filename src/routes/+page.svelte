@@ -1488,6 +1488,12 @@
 										class:mirror-v={moves.find(
 											(m) => ag != 'everyone' && m.id == ag?.move?.action.id
 										)?.iconFlipVertical}
+										class:rotate-90={moves.find(
+											(m) => ag != 'everyone' && m.id == ag?.move?.action.id
+										)?.rotateIcon == 90}
+										class:rotate-negative-90={moves.find(
+											(m) => ag != 'everyone' && m.id == ag?.move?.action.id
+										)?.rotateIcon == -90}
 										>{moves.find((m) => ag != 'everyone' && m.id == ag?.move?.action.id)
 											?.icon}</span
 									>
@@ -1686,6 +1692,10 @@
 										?.iconFlipHorizontal}
 									class:mirror-v={moves.find((m) => m.id == player.move?.action.id)
 										?.iconFlipVertical}
+									class:rotate-90={moves.find((m) => m.id == player.move?.action.id)
+										?.rotateIcon == 90}
+									class:rotate-negative-90={moves.find((m) => m.id == player.move?.action.id)
+										?.rotateIcon == -90}
 									>{moves.find((m) => m.id == player.move?.action.id)?.icon}</span
 								>
 								{#if ag}
@@ -1702,6 +1712,12 @@
 												class:mirror-v={moves.find(
 													(m) => ag != 'everyone' && m.id == ag?.move?.action.id
 												)?.iconFlipVertical}
+												class:rotate-90={moves.find(
+													(m) => ag != 'everyone' && m.id == ag?.move?.action.id
+												)?.rotateIcon == 90}
+												class:rotate-negative-90={moves.find(
+													(m) => ag != 'everyone' && m.id == ag?.move?.action.id
+												)?.rotateIcon == -90}
 												>{moves.find((m) => ag != 'everyone' && m.id == ag?.move?.action.id)
 													?.icon}</span
 											>
